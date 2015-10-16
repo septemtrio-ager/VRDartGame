@@ -20,7 +20,7 @@
 // Desc: The application's entry point
 //-----------------------------------------------------------------------------
 
-// version 0.2
+// version 0.2 git
 
 void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
 void subtract_maskf_black(Texture* result, Texture* backgrnd, Texture* src, DWORD border);
@@ -43,54 +43,43 @@ UINT MainLoop(WindowManager *winmgr)
 	//Texture debug(&arsgd, sizex, sizey);
 	//debug.SetDrawMode(true);
 	
-	// ダーツの矢とダーツボードの
+	// ダーツとダーツ台の座標を格納する
 	float xDart, yDart, zDart;
 	float xDartBoart, yDartBoard, zDartBoard;
 
 	Window window;
 	winmgr->RegisterWindow(&window);
 
-	Window window1; // テスト
-	winmgr->RegisterWindow(&window1); // テスト
-
 	// メインのARSGクラスオブジェクト
 	// このgをメインで使う
 	ARSG g(window.hWnd, sizex, sizey, true);
 	g.SetBackgroundColor(255,0,0,0);
 
-	// テストのARSGクラスオブジェクト
-	// テストでg1を使う
-	ARSG testG(window1.hWnd, sizex, sizey, true); // テスト
-	testG.SetBackgroundColor(255, 0, 0, 0); // テスト
-
 	Light light(&g);
 	light.SetLightIntensity(5.0f);
 	g.Register(&light);
 	
-	// テスト
-	Light testLight(&testG);
-	testG.Register(&testLight); // テスト
-
 	// 背景画像を設定する
 	Texture backgroundImage(&g, L"../../../material/background.jpg");
 	backgroundImage.SetDrawMode(TRUE);
 	g.Register(&backgroundImage);
 	
-	// テスト
-	// Texture testBackgroundImage(&testG, L"../../../material/background.jpg");
-	// testBackgroundImage.SetDrawMode(TRUE);
-	// testG.Register(&testBackgroundImage);
-
+	
+	// mask windowに表示されるオブジェクト
+	Window maskWindow;
+	winmgr->RegisterWindow(&maskWindow);
+	
+	ARSG maskG(maskWindow.hWnd, sizex, sizey, true);
+	maskG.SetBackgroundColor(255, 0, 0, 0);
+	
+	Light maskLight(&maskG);
+	maskLight.SetLightIntensity(5.0f);
+	maskG.Register(&maskLight);
+	
 	// ウィンドウに表示される映像
 	Texture mainScreen(&g, sizex, sizey);
 	mainScreen.SetDrawMode(TRUE);
 	g.Register(&mainScreen);
-
-	// テスト
-	// Window1のウィンドウに表示される映像
-	Texture testScreen(&testG, sizex, sizey);
-	testScreen.SetDrawMode(TRUE);
-	testG.Register(&testScreen);
 
 	ARSD d;
 	d.Init();
@@ -115,28 +104,61 @@ UINT MainLoop(WindowManager *winmgr)
 	dart.SetPosition(6.0f, 3.0f, 0.0f);
 	g.Register(&dart);
 	
-	Dart testDart(&testG, L"../../../material/dart.x");
-	testDart.SetScale(2.0f, 2.0f, 2.0f);
-	testDart.SetPosition(6.0f, 3.0f, 0.0f);
-	testG.Register(&testDart);
-
 	// ダーツ台
 	DartBoard dartBoard(&g, L"../../../material/dartBoard.x");
 	dartBoard.SetScale(0.8f, 0.8f, 0.8f);
 	dartBoard.SetPosition(-6.5f, 0.0f, 0.0f);
 	g.Register(&dartBoard);
-	
-	DartBoard testDartBoard(&testG, L"../../../material/dartBoard.x");
-	testDartBoard.SetScale(0.8f, 0.8f, 0.8f);
-	testDartBoard.SetPosition(-6.5f, 0.0f, 0.0f);
-	testG.Register(&testDartBoard);
 
+	// mask
+	// マスクとなるダーツとダーツ台
+	Dart maskDart(&maskG, L"../../../material/dart.x");
+	maskDart.SetScale(2.0f, 2.0f, 2.0f);
+	maskDart.SetPosition(6.0f, 3.0f, 0.0f);
+	maskG.Register(&maskDart);
+		
 	// ダーツ台の得点の範囲のマスク
-	// DartBoard dartBoardmask00(&g, L"../../../material/mask/0mask.x");
-	// dartBoardmask00.SetScale(0.8f, 0.8f,0.8f);
-	// dartBoardmask00.SetPosition(-6.5f, 0.0f, 0.0f);
-	// g.Register(&dartBoardmask00);
-
+	DartBoard dartBoardmask00(&maskG, L"../../../material/mask/0mask.x");
+	dartBoardmask00.SetScale(0.8f, 0.8f,0.8f);
+	dartBoardmask00.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask00);
+	DartBoard dartBoardmask01(&maskG, L"../../../material/mask/1mask.x");
+	dartBoardmask01.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask01.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask01);
+	DartBoard dartBoardmask02(&maskG, L"../../../material/mask/2mask.x");
+	dartBoardmask02.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask02.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask02);
+	DartBoard dartBoardmask03(&maskG, L"../../../material/mask/3mask.x");
+	dartBoardmask03.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask03.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask03);
+	DartBoard dartBoardmask04(&maskG, L"../../../material/mask/4mask.x");
+	dartBoardmask04.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask04.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask04);
+	DartBoard dartBoardmask05(&maskG, L"../../../material/mask/5mask.x");
+	dartBoardmask05.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask05.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask05);
+	DartBoard dartBoardmask06(&maskG, L"../../../material/mask/6mask.x");
+	dartBoardmask06.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask06.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask06);
+	DartBoard dartBoardmask07(&maskG, L"../../../material/mask/7mask.x");
+	dartBoardmask07.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask07.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask07);
+	DartBoard dartBoardmask08(&maskG, L"../../../material/mask/8mask.x");
+	dartBoardmask08.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask08.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask08);
+	DartBoard dartBoardmask09(&maskG, L"../../../material/mask/9mask.x");
+	dartBoardmask09.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoardmask09.SetPosition(-6.5f, 0.0f, 0.0f);
+	maskG.Register(&dartBoardmask09);
+	
 	ARSI *keyIn = window.GetInputHandler();
 	
 	while(!d.GetCamImage(&stored));
@@ -152,7 +174,7 @@ UINT MainLoop(WindowManager *winmgr)
 			// 状況がリセットされるのでfalseに設定
 			dart.setOverlappingOnce(false);
 			dart.SetPosition(6.0f, 3.0f, 0.0f);
-			testDart.global_move(global_vx, global_vy);
+			maskDart.global_move(global_vx, global_vy);
 			std::cout << "Aボタンが押されました" << endl;
 		}
 		
@@ -169,11 +191,21 @@ UINT MainLoop(WindowManager *winmgr)
 		
 		// ダーツ台を回転させる
 		dartBoard.SetRotationX(0.05f);
-		testDartBoard.SetRotationX(0.05f);
+		// mask
+		dartBoardmask00.SetRotationX(0.05f);
+		dartBoardmask01.SetRotationX(0.05f);
+		dartBoardmask02.SetRotationX(0.05f);
+		dartBoardmask03.SetRotationX(0.05f);
+		dartBoardmask04.SetRotationX(0.05f);
+		dartBoardmask05.SetRotationX(0.05f);
+		dartBoardmask06.SetRotationX(0.05f);
+		dartBoardmask07.SetRotationX(0.05f);
+		dartBoardmask08.SetRotationX(0.05f);
+		dartBoardmask09.SetRotationX(0.05f);
 
 		dart.react(&hitArea_Hand_and_Dart);
 		dart.move();
-		testDart.global_move(global_vx, global_vy);
+		maskDart.global_move(global_vx, global_vy);
 		
 		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
 
@@ -183,7 +215,7 @@ UINT MainLoop(WindowManager *winmgr)
 		//debug = hitArea;
 		//arsgd.Draw(&debug);
 		
-		testG.Draw();
+		maskG.Draw();
 		g.Draw();
 		
 	
