@@ -213,9 +213,9 @@ UINT MainLoop(WindowManager *winmgr)
 		if (xDart < hitThreshold) {
 			dart.setHitDartBoard(true);
 		}
-		// else {
-		// 	dart.setHitDartBoard(false);
-		// }
+		else {
+			dart.setHitDartBoard(false);
+		}
 
 		// ƒ_[ƒc‚ª‘ä‚É‚ ‚½‚Á‚Ä‚¢‚éŽž‚Ìˆ—
 		if (dart.getHitDartBoard()) {
