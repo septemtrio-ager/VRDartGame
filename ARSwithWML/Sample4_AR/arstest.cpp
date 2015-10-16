@@ -204,7 +204,7 @@ UINT MainLoop(WindowManager *winmgr)
 		dartBoardmask07.SetRotationX(0.05f);
 		dartBoardmask08.SetRotationX(0.05f);
 		dartBoardmask09.SetRotationX(0.05f);
-
+		
 		// ダーツの座標を取得する
 		dart.GetPosition(&xDart, &yDart, &zDart);
 
@@ -223,9 +223,12 @@ UINT MainLoop(WindowManager *winmgr)
 			std::cout << "not hit dart board" << std::endl;
 		}
 
+		// ダーツを動かす
 		dart.react(&hitArea_Hand_and_Dart);
 		dart.move();
-		maskDart.global_move(global_vx, global_vy);
+		
+		// マスクウインドウのダーツの動きもさせる
+		maskDart.SetPosition(xDart, yDart, zDart);
 		
 		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
 
@@ -233,10 +236,8 @@ UINT MainLoop(WindowManager *winmgr)
 		//debug = hitArea;
 		//arsgd.Draw(&debug);
 		
-		maskG.Draw();
 		g.Draw();
-		
-	
+		maskG.Draw();
 	}
 	
 	d.StopGraph();
@@ -355,8 +356,8 @@ inline void Dart::react(Texture* _hitArea) {
 			break;
 	}
 
-	global_vx = vx;
-	global_vy = vy;
+	// global_vx = vx;
+	// global_vy = vy;
 }
 
 inline void Dart::move() {
