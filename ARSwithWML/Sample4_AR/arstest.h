@@ -51,6 +51,12 @@ public:
 	Dart(ARSG* _g, wchar_t fln[]) :Touchable(_g, fln),hitDartBoard(false){}
 	void react(Texture* hitArea);
 	void move(void);
+	void setHitDartBoard(bool hdb) {
+		hitDartBoard = hdb;
+	}
+	bool getHitDartBoard() {
+		return hitDartBoard;
+	}
 };
 
 class DartBoard : public Touchable {

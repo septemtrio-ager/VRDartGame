@@ -205,13 +205,29 @@ UINT MainLoop(WindowManager *winmgr)
 		dartBoardmask08.SetRotationX(0.05f);
 		dartBoardmask09.SetRotationX(0.05f);
 
+		// ダーツの座標を取得する
+		dart.GetPosition(&xDart, &yDart, &zDart);
+
+		// ダーツが台に当たったかどうかを判定
+		if (xDart < hitThreshold) {
+			dart.setHitDartBoard(true);
+		}
+		// else {
+		// 	dart.setHitDartBoard(false);
+		// }
+
+		// ダーツが台にあたっている時の処理
+		if (dart.getHitDartBoard()) {
+			std::cout << "hit dart board" << std::endl; 
+		} else {
+			std::cout << "not hit dart board" << std::endl;
+		}
+
 		dart.react(&hitArea_Hand_and_Dart);
 		dart.move();
 		maskDart.global_move(global_vx, global_vy);
 		
 		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
-
-		
 
 		//for debug(2/2)
 		//debug = hitArea;
