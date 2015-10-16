@@ -46,6 +46,8 @@ public:
 class Dart : public Touchable {
 protected:
 	bool hitDartBoard;
+	float xDart = 0;
+	float yDart = 0;
 
 public:
 	Dart(ARSG* _g, wchar_t fln[]) :Touchable(_g, fln),hitDartBoard(false){}
@@ -56,6 +58,9 @@ public:
 	}
 	bool getHitDartBoard() {
 		return hitDartBoard;
+	}
+	void setYDart(float yd) {
+		yDart = yd;
 	}
 };
 
