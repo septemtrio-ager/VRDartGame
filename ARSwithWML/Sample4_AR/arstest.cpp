@@ -165,6 +165,9 @@ UINT MainLoop(WindowManager *winmgr)
 
 	// アニメーションの制御部分
 	while (!winmgr->WaitingForTermination()){
+
+		// ダーツの座標を取得する
+		dart.GetPosition(&xDart, &yDart, &zDart);
 		
 		// Aボタンを押した時の挙動
 		if (keyIn->GetKeyTrig('A')) {
@@ -174,7 +177,10 @@ UINT MainLoop(WindowManager *winmgr)
 			// 状況がリセットされるのでfalseに設定
 			dart.setOverlappingOnce(false);
 			dart.SetPosition(6.0f, 3.0f, 0.0f);
-			maskDart.global_move(global_vx, global_vy);
+			
+			// マスクダーツの動きもリセット
+			maskDart.SetPosition(xDart, yDart, zDart);
+			
 			std::cout << "Aボタンが押されました" << endl;
 		}
 		
@@ -203,9 +209,6 @@ UINT MainLoop(WindowManager *winmgr)
 		dartBoardmask08.SetRotationX(0.05f);
 		dartBoardmask09.SetRotationX(0.05f);
 		
-		// ダーツの座標を取得する
-		dart.GetPosition(&xDart, &yDart, &zDart);
-
 		// ダーツが台に当たったかどうかを判定
 		if (xDart < hitThreshold) {
 			dart.setHitDartBoard(true);
@@ -354,8 +357,6 @@ inline void Dart::react(Texture* _hitArea) {
 			break;
 	}
 
-	// global_vx = vx;
-	// global_vy = vy;
 }
 
 inline void Dart::move() {
