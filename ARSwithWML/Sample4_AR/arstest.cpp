@@ -395,6 +395,7 @@ inline void Dart::move() {
 		} else {
 			if (hitDartBoard) {
 				std::cout << "—Ž‚¿‚é‚Ì‚¨‚í‚è[" << std::endl;
+				SetPosition(6.0f, 3.0f, 0.0f);
 				overlappingOnce = false;
 				hitDartBoard = false;
 			}else {
