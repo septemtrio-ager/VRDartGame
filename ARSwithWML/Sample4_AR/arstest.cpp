@@ -25,11 +25,9 @@
 void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
 void subtract_maskf_black(Texture* result, Texture* backgrnd, Texture* src, DWORD border);
 void bg_subtract(Texture* result, Texture* background, Texture* src, DWORD border);
+
 const unsigned int sizex = 640; 
 const unsigned int sizey = 480;
-
-float global_vx;
-float global_vy;
 
 const float hitThreshold = -3.0f;
 
