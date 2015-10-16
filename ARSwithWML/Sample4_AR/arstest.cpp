@@ -31,6 +31,8 @@ const unsigned int sizey = 480;
 float global_vx;
 float global_vy;
 
+const float hitThreshold = -3.0f;
+
 UINT MainLoop(WindowManager *winmgr)
 {
 	ShowDebugWindow();
