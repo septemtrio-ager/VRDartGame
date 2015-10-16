@@ -20,7 +20,7 @@
 // Desc: The application's entry point
 //-----------------------------------------------------------------------------
 
-// version 0.2
+// version 0.2 git
 
 void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
 void subtract_maskf_black(Texture* result, Texture* backgrnd, Texture* src, DWORD border);
