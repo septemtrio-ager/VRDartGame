@@ -30,6 +30,7 @@ const unsigned int sizex = 640;
 const unsigned int sizey = 480;
 
 const float hitThreshold = -3.0f;
+const float restartDartPosition = -4.0f;
 
 UINT MainLoop(WindowManager *winmgr)
 {
@@ -168,6 +169,9 @@ UINT MainLoop(WindowManager *winmgr)
 
 		// ダーツの座標を取得する
 		dart.GetPosition(&xDart, &yDart, &zDart);
+		dart.setYDart(yDart);
+
+		std::cout << "xDart = " << xDart << " yDart = " << yDart << " zDart = " << zDart << std::endl;
 		
 		// Aボタンを押した時の挙動
 		if (keyIn->GetKeyTrig('A')) {
@@ -386,7 +390,17 @@ inline void Dart::move() {
 		vx *= 0.76f;
 		vy *= 0.8f;
 
-		SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+		if (yDart > restartDartPosition) {
+			SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+		} else {
+			if (hitDartBoard) {
+				std::cout << "落ちるのおわりー" << std::endl;
+				overlappingOnce = false;
+				hitDartBoard = false;
+			}else {
+				SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+			}
+		}
 	}
 	else {
 		SetPosition(0.0f, 0.0f, 0.0f, GL_RELATIVE);
