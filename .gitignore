@@ -1,10 +1,11 @@
 # VR Dart Game gitginore
 
-# *
-
-* /
-
-!/.gitignore
+!.gitignore
 !README.md
-!ARSwithWML/Sample4_AR/arstest.cpp
-!ARSwithWML/Sample4_AR/arstest.h
+
+ARSwithWML/*
+!ARSwithWML/Sample4_AR
+ARSwithWML/Sample4_AR/*
+
+!*.cpp
+!*.h
