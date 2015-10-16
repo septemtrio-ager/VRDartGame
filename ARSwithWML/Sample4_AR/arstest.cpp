@@ -383,7 +383,7 @@ inline void Dart::move() {
 		}
 
 		//‹ó‹C’ïR
-		vx *= 0.78f;
+		vx *= 0.76f;
 		vy *= 0.8f;
 
 		SetPosition(vx, vy, 0.0f, GL_RELATIVE);
