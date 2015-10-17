@@ -25,7 +25,7 @@ protected:
 
    bool overlappingOnce;
 
-   bool get_overlapping_center(Texture* hitArea, int *gx, int *gy, unsigned int threshold);
+    // bool get_overlapping_center(Texture* hitArea, int *gx, int *gy, unsigned int threshold);
    void state_action(bool condition);
 public:   
    static enum {ACTIVE,INACTIVE};
@@ -33,6 +33,8 @@ public:
 
    Touchable(ARSG* _g, wchar_t fln[]) : Mesh(_g,fln), vx(0.2f),vy(-0.2f),state(ACTIVE),overlappingOnce(false){ }
    Touchable(void) : vx(0.2f),vy(-0.2f),state(ACTIVE){ }
+   bool get_overlapping_center(Texture* hitArea, int *gx, int *gy, unsigned int threshold);
+   bool whereToHitDartBoard(Texture * hitAreaMask);
    void react(Texture *hitArea);
    void move(void);
    void setOverlappingOnce(bool tf){
