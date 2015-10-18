@@ -371,7 +371,7 @@ inline bool Touchable::whereToHitDartBoard(Texture *hitAreaMask) {
 	ARSC::and(&txtr, &txtr, hitAreaMask, 0x10101010);
 	ARSC::getCG(&pGx, &pGy, &pixel_count, &txtr);
 
-	return pixel_count > 100;
+	return pixel_count > 50;
 }
 
 inline bool Touchable::get_overlapping_center(Texture* hitArea, int *pGx, int *pGy, unsigned int threshold)
