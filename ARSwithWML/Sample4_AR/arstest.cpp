@@ -44,8 +44,8 @@ UINT MainLoop(WindowManager *winmgr)
 	//debug.SetDrawMode(true);
 	
 	// ダーツとダーツ台の座標を格納する
-	float xDart, yDart, zDart;
-	float xDartBoart, yDartBoard, zDartBoard;
+	// float xDart, yDart, zDart;
+	// float xDartBoart, yDartBoard, zDartBoard;
 
 	int pGx, pGy;
 
@@ -192,8 +192,8 @@ UINT MainLoop(WindowManager *winmgr)
 	while (!winmgr->WaitingForTermination()){
 
 		// ダーツの座標を取得する
-		dart.GetPosition(&xDart, &yDart, &zDart);
-		dart.setYDart(yDart);
+		// dart.GetPosition(&xDart, &yDart, &zDart);
+		// dart.setYDart(yDart);
 
 		// std::cout << "xDart = " << xDart << " yDart = " << yDart << " zDart = " << zDart << std::endl;
 		
@@ -208,7 +208,7 @@ UINT MainLoop(WindowManager *winmgr)
 			dart.SetPosition(6.0f, 3.0f, 0.0f);
 			
 			// マスクダーツの動きもリセット
-			maskDart.SetPosition(xDart, yDart, zDart);
+			// maskDart.SetPosition(xDart, yDart, zDart);
 
 			// 獲得したポイントもリセット
 			point = 0;
