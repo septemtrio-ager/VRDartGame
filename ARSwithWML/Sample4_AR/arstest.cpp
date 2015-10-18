@@ -211,6 +211,9 @@ UINT MainLoop(WindowManager *winmgr)
 			
 			// マスクダーツの動きもリセット
 			maskDart.SetPosition(xDart, yDart, zDart);
+
+			// 獲得したポイントもリセット
+			point = 0;
 			
 			std::cout << "Aボタンが押されました" << endl;
 		}
@@ -429,7 +432,7 @@ inline void Touchable::move()
 	if (c.x < 0 || c.x > sizex)	vx *= -1.0f;
 	if (c.y > sizey-50 && vy<0)	// vy *= -1.0f;
 
-	//自由落下または停止
+	
 	if (c.y > sizey - 50 && vy < 0.03f) {
 		// vy = 0;
 	}
@@ -503,7 +506,7 @@ inline void Dart::move() {
 		}
 
 		//空気抵抗
-		vx *= 0.76f;
+		vx *= 0.8f;
 		vy *= 0.8f;
 
 		if (yDart > restartDartPosition) {
@@ -514,12 +517,8 @@ inline void Dart::move() {
 			if (hitDartBoard) {
 				
 				std::cout << "落ちるのおわりー" << std::endl;
-<<<<<<< HEAD
-				SetPosition(6.0f, 3.0f, 0.0f);
-=======
 				
 				// 状態を示すフラグをリセット
->>>>>>> where_to_hit
 				overlappingOnce = false;
 				hitDartBoard = false;
 				hitOnce = false;
