@@ -500,6 +500,9 @@ inline void Dart::move() {
 		//Ž©—R—Ž‰º‚Ü‚½‚Í’âŽ~
 		if (c.y > sizey - 50 && vy < 0.03f) {
 			vy = 0;
+
+			// “r’†‚Å‰æ–Ê‰º‚Å’âŽ~‚µ‚½‚çƒXƒ^[ƒgˆÊ’u‚É–ß‚é‚æ‚¤
+			SetPosition(6.0f, 3.0f, 0.0f);
 		}
 		else {
 			vy -= 0.03f;
