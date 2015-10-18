@@ -40,9 +40,6 @@ public:
    void setOverlappingOnce(bool tf){
 	   overlappingOnce = tf;
    }
-
-   void global_move(float vx, float vy);
-   
 };
 
 class Dart : public Touchable {

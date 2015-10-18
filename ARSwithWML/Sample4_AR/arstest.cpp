@@ -446,11 +446,6 @@ inline void Touchable::move()
 	SetPosition(vx, 0.0f, 0.0f, GL_RELATIVE);
 }
 
-inline void Touchable::global_move(float gvx, float gvy) {
-
-	SetPosition(gvx, gvy, 0.0f, GL_RELATIVE);
-}
-
 inline void Dart::react(Texture* _hitArea) {
 
 	int gx,gy;
