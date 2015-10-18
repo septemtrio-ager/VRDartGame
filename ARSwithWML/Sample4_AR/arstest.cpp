@@ -23,7 +23,6 @@
 // version 0.2 git
 
 void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
-void subtract_maskf_black(Texture* result, Texture* backgrnd, Texture* src, DWORD border);
 void bg_subtract(Texture* result, Texture* background, Texture* src, DWORD border);
 
 const unsigned int sizex = 640; 
@@ -357,13 +356,6 @@ inline void subtract_maskf(Texture* result, Texture* backgrnd, Texture* src, DWO
 	ARSC::diff(result,backgrnd,src,border);
 	ARSC::monochrome(result,result);
 	ARSC::createmaskf(result,result,border);
-}
-
-inline void subtract_maskf_black(Texture* result, Texture* backgrnd, Texture* src, DWORD border)
-{
-	ARSC::diff(result,backgrnd,src,border);
-	ARSC::monochrome(result,result);
-	// ARSC::createmaskf(result,result,border);
 }
 
 inline bool Touchable::whereToHitDartBoard(Texture *hitAreaMask) {
