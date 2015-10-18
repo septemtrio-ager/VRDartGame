@@ -48,11 +48,12 @@ public:
 class Dart : public Touchable {
 protected:
 	bool hitDartBoard;
+	bool hitOnce;
 	float xDart = 0;
 	float yDart = 0;
 
 public:
-	Dart(ARSG* _g, wchar_t fln[]) :Touchable(_g, fln),hitDartBoard(false){}
+Dart(ARSG* _g, wchar_t fln[]):Touchable(_g, fln),hitDartBoard(false), hitOnce(false){}
 	void react(Texture* hitArea);
 	void move(void);
 	void setHitDartBoard(bool hdb) {
@@ -64,6 +65,12 @@ public:
 	void setYDart(float yd) {
 		yDart = yd;
 	}
+	bool getHitOnce() {
+		return hitOnce;
+	}
+	void setHitOnce(bool ho) {
+		hitOnce = ho;
+	}
 };
 
 class DartBoard : public Touchable {
@@ -74,5 +81,11 @@ public:
 	DartBoard(ARSG* _g, wchar_t fln[]) : Touchable(_g, fln), hitDart(false) {}
 	void react(Texture* hitArea);
 	void move(void);
+	bool getHitDart() {
+		return hitDart;
+	}
+	void setHitDart(bool hd) {
+		hitDart = hd;
+	}
 
 };

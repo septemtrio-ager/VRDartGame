@@ -29,7 +29,7 @@ void bg_subtract(Texture* result, Texture* background, Texture* src, DWORD borde
 const unsigned int sizex = 640; 
 const unsigned int sizey = 480;
 
-const float hitThreshold = -3.0f;
+// const float hitThreshold = -3.0f;
 const float restartDartPosition = -4.0f;
 
 UINT MainLoop(WindowManager *winmgr)
@@ -49,6 +49,9 @@ UINT MainLoop(WindowManager *winmgr)
 	float xDartBoart, yDartBoard, zDartBoard;
 
 	int pGx, pGy;
+
+	int point = 0;
+	int totalPoint = 0;
 	
 	Window window;
 	winmgr->RegisterWindow(&window);
@@ -108,6 +111,7 @@ UINT MainLoop(WindowManager *winmgr)
 	hitArea_Dart_and_DartBoard2.SetDrawMode(TRUE);
 	Texture hitArea_Dart_and_DartBoard3(&maskG, sizex, sizey);
 	hitArea_Dart_and_DartBoard3.SetDrawMode(TRUE);
+	maskG.Register(&hitArea_Dart_and_DartBoard3);
 	Texture hitArea_Dart_and_DartBoard4(&maskG, sizex, sizey);
 	hitArea_Dart_and_DartBoard4.SetDrawMode(TRUE);
 	Texture hitArea_Dart_and_DartBoard5(&maskG, sizex, sizey);
@@ -202,6 +206,7 @@ UINT MainLoop(WindowManager *winmgr)
 			
 			// 状況がリセットされるのでfalseに設定
 			dart.setOverlappingOnce(false);
+			dart.setHitOnce(false);
 			dart.SetPosition(6.0f, 3.0f, 0.0f);
 			
 			// マスクダーツの動きもリセット
@@ -212,7 +217,7 @@ UINT MainLoop(WindowManager *winmgr)
 		
 		d.GetCamImage(&source);
 
-		// Qボタンを押したらプログラムを終了する
+		
 		if (keyIn->GetKeyTrig('Q')) break;
 			
 		// ダーツの矢と手が接触している領域のマスク画像を作成
@@ -246,51 +251,89 @@ UINT MainLoop(WindowManager *winmgr)
 		dartBoardmask09.SetRotationX(0.05f);
 		
 		// ダーツが台に当たったかどうかを判定
-		if (xDart < hitThreshold) {
+		if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard1)
+			|| dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard2)
+			|| dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard3)
+			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard4)
+			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard5)
+			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard6)
+			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard7)
+			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard8)
+			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard9)) {
+			
+			// ダーツが当たったフラグを立てる
 			dart.setHitDartBoard(true);
-		}
-		else {
-			dart.setHitDartBoard(false);
-		}
+			dartBoard.setHitDart(true);
 
+			if (!dart.getHitOnce()) {
+				
+				// どこにダーツが当たったかを判定する
+				if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard0)) {
+					std::cout << "hit 0 point zone" << std::endl;
+					point = 0;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard1)) {
+					std::cout << "hit 1 point zone" << std::endl;
+					point = 1;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard2)) {
+					std::cout << "hit 2 point zone" << std::endl;
+					point = 2;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard3)) {
+					std::cout << "hit 3 point zone" << std::endl;
+					point = 3;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard4)) {
+					std::cout << "hit 4 point zone" << std::endl;
+					point = 4;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard5)) {
+					std::cout << "hit 5 point zone" << std::endl;
+					point = 5;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard6)) {
+					std::cout << "hit 6 point zone" << std::endl;
+					point = 6;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard7)) {
+					std::cout << "hit 7 point zone" << std::endl;
+					point = 7;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard8)) {
+					std::cout << "hit 8 point zone" << std::endl;
+					point = 8;
+				
+				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard9)) {
+					std::cout << "hit 9 point zone" << std::endl;
+					point = 9;
+				
+				}
+
+				// 1回当たったことを示すフラグをtrueにする
+				dart.setHitOnce(true);
+			}
+		} else {
+			// ダーツが当たっていないフラグを立てる
+			dart.setHitDartBoard(false);
+			// dartBoard.setHitDart(false);
+		}
+		
 		// ダーツが台にあたっている時の処理
 		if (dart.getHitDartBoard()) {
 			std::cout << "hit dart board" << std::endl; 
 		} else {
 			std::cout << "not hit dart board" << std::endl;
 		}
-
-		
-		std::cout << dart.get_overlapping_center(&hitArea_Dart_and_DartBoard0, &pGx, &pGy, 100) << std::endl; 
-		
-		if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard0)) {
-			std::cout << "hit 0 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard1)) {
-			std::cout << "hit 1 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard2)) {
-			std::cout << "hit 2 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard3)) {
-			std::cout << "hit 3 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard4)) {
-			std::cout << "hit 4 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard5)) {
-			std::cout << "hit 5 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard6)) {
-			std::cout << "hit 6 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard7)) {
-			std::cout << "hit 7 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard8)) {
-			std::cout << "hit 8 point zone" << std::endl;
-		} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard9)) {
-			std::cout << "hit 9 point zone" << std::endl;
-		}
-		
+				
 		// ダーツを動かす
 		dart.react(&hitArea_Hand_and_Dart);
 		dart.move();
+
+		std::cout << "Now you get " << point << " Point" << std::endl;
 		
 		// マスクウインドウのダーツの動きもさせる
-		maskDart.SetPosition(xDart, yDart, zDart);
+		// maskDart.SetPosition(xDart, yDart, zDart);
 		
 		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
 
@@ -466,10 +509,19 @@ inline void Dart::move() {
 		if (yDart > restartDartPosition) {
 			SetPosition(vx, vy, 0.0f, GL_RELATIVE);
 		} else {
+			
+			// 落ちるのが終わったときの処理
 			if (hitDartBoard) {
+				
 				std::cout << "落ちるのおわりー" << std::endl;
+				
+				// 状態を示すフラグをリセット
 				overlappingOnce = false;
 				hitDartBoard = false;
+				hitOnce = false;
+
+				// スタート位置に移動させる
+				SetPosition(6.0f, 3.0f, 0.0f);
 			}else {
 				SetPosition(vx, vy, 0.0f, GL_RELATIVE);
 			}
