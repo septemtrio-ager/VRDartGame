@@ -51,6 +51,7 @@ UINT MainLoop(WindowManager *winmgr)
 
 	int point = 0;
 	int totalPoint = 0;
+	int lastPoint = 0;
 	
 	Window window;
 	winmgr->RegisterWindow(&window);
@@ -183,6 +184,23 @@ UINT MainLoop(WindowManager *winmgr)
 	DartBoard dartBoardmask09(&g, L"../../../material/mask/9mask.x");
 	dartBoardmask09.SetScale(0.8f, 0.8f, 0.8f);
 	dartBoardmask09.SetPosition(-6.5f, 0.0f, 0.0f);
+	
+	// 点数表示の画像を読み込む
+	Texture *pointArray[10];
+	pointArray[0] = new Texture(&g, L"../../../material/point/0.png");
+	pointArray[1] = new Texture(&g, L"../../../material/point/1.png");
+	pointArray[2] = new Texture(&g, L"../../../material/point/2.png");
+	pointArray[3] = new Texture(&g, L"../../../material/point/3.png");
+	pointArray[4] = new Texture(&g, L"../../../material/point/4.png");
+	pointArray[5] = new Texture(&g, L"../../../material/point/5.png");
+	pointArray[6] = new Texture(&g, L"../../../material/point/6.png");
+	pointArray[7] = new Texture(&g, L"../../../material/point/7.png");
+	pointArray[8] = new Texture(&g, L"../../../material/point/8.png");
+	pointArray[9] = new Texture(&g, L"../../../material/point/9.png");
+	for (int i = 0; i < 10; i++) {
+		pointArray[i]->SetDrawMode(TRUE);
+	}
+	g.Register(pointArray[0]);
 		
 	ARSI *keyIn = window.GetInputHandler();
 	
@@ -267,6 +285,9 @@ UINT MainLoop(WindowManager *winmgr)
 			dartBoard.setHitDart(true);
 
 			if (!dart.getHitOnce()) {
+
+				// 前回の点数を消す
+				g.Unregister(pointArray[lastPoint]);
 				
 				// どこにダーツが当たったかを判定する
 				if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard0)) {
@@ -308,9 +329,14 @@ UINT MainLoop(WindowManager *winmgr)
 				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard9)) {
 					std::cout << "hit 9 point zone" << std::endl;
 					point = 9;
-				
 				}
 
+				// 当たったポイントを退避しておく
+				lastPoint = point;				
+				
+				// 前に当たったポイントの表示から現在のポイント表示に変更する
+				g.Register(pointArray[point]);
+				
 				// 1回当たったことを示すフラグをtrueにする
 				dart.setHitOnce(true);
 			}
@@ -337,7 +363,7 @@ UINT MainLoop(WindowManager *winmgr)
 		// maskDart.SetPosition(xDart, yDart, zDart);
 		
 		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
-
+		
 		//for debug(2/2)
 		//debug = hitArea;
 		//arsgd.Draw(&debug);
@@ -347,6 +373,12 @@ UINT MainLoop(WindowManager *winmgr)
 	}
 	
 	d.StopGraph();
+
+	// 動的に確保したメモリを開放する
+	for (int i = 0; i < 10; i++) {
+		delete pointArray[i];
+	}
+
 	
 	return 0;
 }
