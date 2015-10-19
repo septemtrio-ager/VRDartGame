@@ -30,6 +30,7 @@ const unsigned int sizey = 480;
 
 // const float hitThreshold = -3.0f;
 const float restartDartPosition = -3.0f;
+const int numberOfPlays = 3;
 
 UINT MainLoop(WindowManager *winmgr)
 {
@@ -52,6 +53,7 @@ UINT MainLoop(WindowManager *winmgr)
 	int point = 0;
 	int totalPoint = 0;
 	int lastPoint = 0;
+	int lastTotalPoint = 0;
 	
 	Window window;
 	winmgr->RegisterWindow(&window);
@@ -201,6 +203,41 @@ UINT MainLoop(WindowManager *winmgr)
 		pointArray[i]->SetDrawMode(TRUE);
 	}
 	g.Register(pointArray[0]);
+
+	// 合計得点表示の画像を読み込む
+	Texture *totalPointArray[28];
+	totalPointArray[0] = new Texture(&g, L"../../../material/totalpoint/0.png");
+	totalPointArray[1] = new Texture(&g, L"../../../material/totalpoint/1.png");
+	totalPointArray[2] = new Texture(&g, L"../../../material/totalpoint/2.png");
+	totalPointArray[3] = new Texture(&g, L"../../../material/totalpoint/3.png");
+	totalPointArray[4] = new Texture(&g, L"../../../material/totalpoint/4.png");
+	totalPointArray[5] = new Texture(&g, L"../../../material/totalpoint/5.png");
+	totalPointArray[6] = new Texture(&g, L"../../../material/totalpoint/6.png");
+	totalPointArray[7] = new Texture(&g, L"../../../material/totalpoint/7.png");
+	totalPointArray[8] = new Texture(&g, L"../../../material/totalpoint/8.png");
+	totalPointArray[9] = new Texture(&g, L"../../../material/totalpoint/9.png");
+	totalPointArray[10] = new Texture(&g, L"../../../material/totalpoint/10.png");
+	totalPointArray[11] = new Texture(&g, L"../../../material/totalpoint/11.png");
+	totalPointArray[12] = new Texture(&g, L"../../../material/totalpoint/12.png");
+	totalPointArray[13] = new Texture(&g, L"../../../material/totalpoint/13.png");
+	totalPointArray[14] = new Texture(&g, L"../../../material/totalpoint/14.png");
+	totalPointArray[15] = new Texture(&g, L"../../../material/totalpoint/15.png");
+	totalPointArray[16] = new Texture(&g, L"../../../material/totalpoint/16.png");
+	totalPointArray[17] = new Texture(&g, L"../../../material/totalpoint/17.png");
+	totalPointArray[18] = new Texture(&g, L"../../../material/totalpoint/18.png");
+	totalPointArray[19] = new Texture(&g, L"../../../material/totalpoint/19.png");
+	totalPointArray[20] = new Texture(&g, L"../../../material/totalpoint/20.png");
+	totalPointArray[21] = new Texture(&g, L"../../../material/totalpoint/21.png");
+	totalPointArray[22] = new Texture(&g, L"../../../material/totalpoint/22.png");
+	totalPointArray[23] = new Texture(&g, L"../../../material/totalpoint/23.png");
+	totalPointArray[24] = new Texture(&g, L"../../../material/totalpoint/24.png");
+	totalPointArray[25] = new Texture(&g, L"../../../material/totalpoint/25.png");
+	totalPointArray[26] = new Texture(&g, L"../../../material/totalpoint/26.png");
+	totalPointArray[27] = new Texture(&g, L"../../../material/totalpoint/27.png");
+	for (int i = 0; i < 28; i++) {
+		totalPointArray[i]->SetDrawMode(TRUE);
+	}
+	g.Register(totalPointArray[0]);
 		
 	ARSI *keyIn = window.GetInputHandler();
 	
@@ -288,6 +325,7 @@ UINT MainLoop(WindowManager *winmgr)
 
 				// 前回の点数を消す
 				g.Unregister(pointArray[lastPoint]);
+				g.Unregister(totalPointArray[lastTotalPoint]);
 				
 				// どこにダーツが当たったかを判定する
 				if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard0)) {
@@ -330,20 +368,26 @@ UINT MainLoop(WindowManager *winmgr)
 					std::cout << "hit 9 point zone" << std::endl;
 					point = 9;
 				}
-
+				
 				// 当たったポイントを退避しておく
-				lastPoint = point;				
+				lastPoint = point;
+				lastTotalPoint = totalPoint;
+				
+				// 合計ポイントを計算する
+				totalPoint++;
 				
 				// 前に当たったポイントの表示から現在のポイント表示に変更する
 				g.Register(pointArray[point]);
+				g.Register(totalPointArray[totalPoint]);
 				
 				// 1回当たったことを示すフラグをtrueにする
 				dart.setHitOnce(true);
 			}
+			
 		} else {
+			
 			// ダーツが当たっていないフラグを立てる
 			dart.setHitDartBoard(false);
-			// dartBoard.setHitDart(false);
 		}
 		
 		// ダーツが台にあたっている時の処理
@@ -362,6 +406,7 @@ UINT MainLoop(WindowManager *winmgr)
 		// マスクウインドウのダーツの動きもさせる
 		// maskDart.SetPosition(xDart, yDart, zDart);
 		
+		// 身体映像の切り抜きを行う
 		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
 		
 		//for debug(2/2)
