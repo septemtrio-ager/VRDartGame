@@ -29,7 +29,7 @@ const unsigned int sizex = 640;
 const unsigned int sizey = 480;
 
 // const float hitThreshold = -3.0f;
-const float restartDartPosition = -4.0f;
+const float restartDartPosition = -3.0f;
 
 UINT MainLoop(WindowManager *winmgr)
 {
