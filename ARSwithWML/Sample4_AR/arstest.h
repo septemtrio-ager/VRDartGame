@@ -48,6 +48,7 @@ protected:
 	bool hitOnce;
 	float xDart = 0;
 	float yDart = 0;
+	int overlappingCount = 0;
 
 public:
 Dart(ARSG* _g, wchar_t fln[]):Touchable(_g, fln),hitDartBoard(false), hitOnce(false){}
@@ -67,6 +68,12 @@ Dart(ARSG* _g, wchar_t fln[]):Touchable(_g, fln),hitDartBoard(false), hitOnce(fa
 	}
 	void setHitOnce(bool ho) {
 		hitOnce = ho;
+	}
+	int getOverlappingCount() {
+		return overlappingCount;
+	}
+	void setOverlappingCount(int olc) {
+		overlappingCount = olc;
 	}
 };
 
