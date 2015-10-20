@@ -69,7 +69,6 @@ UINT MainLoop(WindowManager *winmgr)
 	backgroundImage.SetDrawMode(TRUE);
 	g.Register(&backgroundImage);
 	
-	
 	// mask windowに表示されるオブジェクト
 	// Window maskWindow;
 	// winmgr->RegisterWindow(&maskWindow);
@@ -91,8 +90,6 @@ UINT MainLoop(WindowManager *winmgr)
 	// maskScreen.SetDrawMode(TRUE);
 	// maskG.Register(&maskScreen);
 
-	
-
 	ARSD d;
 	d.Init();
 	d.AttachCam(0);
@@ -101,28 +98,14 @@ UINT MainLoop(WindowManager *winmgr)
 	// 接触している領域を格納する
 	// 手とダーツが接触している領域を格納する
 	Texture hitArea_Hand_and_Dart(&g,sizex,sizey);
-	// ダーツの矢とダーツ台が接触している領域を格納のする
-	Texture hitArea_Dart_and_DartBoard0(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard0.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard1(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard1.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard2(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard2.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard3(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard3.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard4(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard4.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard5(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard5.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard6(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard6.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard7(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard7.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard8(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard8.SetDrawMode(TRUE);
-	Texture hitArea_Dart_and_DartBoard9(&g, sizex, sizey);
-	hitArea_Dart_and_DartBoard9.SetDrawMode(TRUE);
 	
+	// ダーツの矢とダーツ台が接触している領域を格納のする
+	Texture *hitAreaArray[10];
+	for (int i = 0; i < 10; i++) {
+		hitAreaArray[i] = new Texture(&g, sizex, sizey);
+		hitAreaArray[i]->SetDrawMode(TRUE);
+	}
+		
 	// 流れてくるフレームを一時的に保存する
 	Texture stored (&g,sizex,sizey);
 	// 身体映像を切り抜く際に背景画像として利用する
@@ -130,8 +113,8 @@ UINT MainLoop(WindowManager *winmgr)
 	source.SetDrawMode(TRUE);
 
 	// mask
-	Texture maskSource(&g, sizex, sizey);
-	maskSource.SetDrawMode(TRUE);
+	// Texture maskSource(&g, sizex, sizey);
+	// maskSource.SetDrawMode(TRUE);
 	
 	// ダーツの矢
 	Dart dart(&g, L"../../../material/dart.x");
@@ -147,43 +130,28 @@ UINT MainLoop(WindowManager *winmgr)
 
 	// mask
 	// マスクとなるダーツ
-	Dart maskDart(&g, L"../../../material/white_dart.x");
-	maskDart.SetScale(2.0f, 2.0f, 2.0f);
-	maskDart.SetPosition(6.0f, 3.0f, 0.0f);
+	// Dart maskDart(&g, L"../../../material/white_dart.x");
+	// maskDart.SetScale(2.0f, 2.0f, 2.0f);
+	// maskDart.SetPosition(6.0f, 3.0f, 0.0f);
 	// g.Register(&maskDart);
 		
 	// ダーツ台の得点の範囲のマスク
-	DartBoard dartBoardmask00(&g, L"../../../material/mask/0mask.x");
-	dartBoardmask00.SetScale(0.8f, 0.8f,0.8f);
-	dartBoardmask00.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask01(&g, L"../../../material/mask/1mask.x");
-	dartBoardmask01.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask01.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask02(&g, L"../../../material/mask/2mask.x");
-	dartBoardmask02.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask02.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask03(&g, L"../../../material/mask/3mask.x");
-	dartBoardmask03.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask03.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask04(&g, L"../../../material/mask/4mask.x");
-	dartBoardmask04.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask04.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask05(&g, L"../../../material/mask/5mask.x");
-	dartBoardmask05.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask05.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask06(&g, L"../../../material/mask/6mask.x");
-	dartBoardmask06.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask06.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask07(&g, L"../../../material/mask/7mask.x");
-	dartBoardmask07.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask07.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask08(&g, L"../../../material/mask/8mask.x");
-	dartBoardmask08.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask08.SetPosition(-6.5f, 0.0f, 0.0f);
-	DartBoard dartBoardmask09(&g, L"../../../material/mask/9mask.x");
-	dartBoardmask09.SetScale(0.8f, 0.8f, 0.8f);
-	dartBoardmask09.SetPosition(-6.5f, 0.0f, 0.0f);
-		
+	DartBoard *dartBoardMaskArray[10];
+	dartBoardMaskArray[0] = new DartBoard(&g, L"../../../material/mask/0mask.x");
+	dartBoardMaskArray[1] = new DartBoard(&g, L"../../../material/mask/1mask.x");
+	dartBoardMaskArray[2] = new DartBoard(&g, L"../../../material/mask/2mask.x");
+	dartBoardMaskArray[3] = new DartBoard(&g, L"../../../material/mask/3mask.x");
+	dartBoardMaskArray[4] = new DartBoard(&g, L"../../../material/mask/4mask.x");
+	dartBoardMaskArray[5] = new DartBoard(&g, L"../../../material/mask/5mask.x");
+	dartBoardMaskArray[6] = new DartBoard(&g, L"../../../material/mask/6mask.x");
+	dartBoardMaskArray[7] = new DartBoard(&g, L"../../../material/mask/7mask.x");
+	dartBoardMaskArray[8] = new DartBoard(&g, L"../../../material/mask/8mask.x");
+	dartBoardMaskArray[9] = new DartBoard(&g, L"../../../material/mask/9mask.x");
+	for (int i = 0; i < 10; i++) {
+		dartBoardMaskArray[i]->SetScale(0.8f, 0.8f, 0.8f);
+		dartBoardMaskArray[i]->SetPosition(-6.5f, 0.0f, 0.0f);
+	}
+	
 	ARSI *keyIn = window.GetInputHandler();
 	
 	while(!d.GetCamImage(&stored));
@@ -226,89 +194,42 @@ UINT MainLoop(WindowManager *winmgr)
 		// subtract_maskf(&hitArea_Dart_and_DartBoard0, &g, &g, 0x20202020);
 
 		// ダーツの矢とダーツ台が接触している領域のマスク画像を作成
-		g.Draw(&dartBoardmask00, &hitArea_Dart_and_DartBoard0);
-		g.Draw(&dartBoardmask01, &hitArea_Dart_and_DartBoard1);
-		g.Draw(&dartBoardmask02, &hitArea_Dart_and_DartBoard2);
-		g.Draw(&dartBoardmask03, &hitArea_Dart_and_DartBoard3);
-		g.Draw(&dartBoardmask04, &hitArea_Dart_and_DartBoard4);
-		g.Draw(&dartBoardmask05, &hitArea_Dart_and_DartBoard5);
-		g.Draw(&dartBoardmask06, &hitArea_Dart_and_DartBoard6);
-		g.Draw(&dartBoardmask07, &hitArea_Dart_and_DartBoard7);
-		g.Draw(&dartBoardmask08, &hitArea_Dart_and_DartBoard8);
-		g.Draw(&dartBoardmask09, &hitArea_Dart_and_DartBoard9);
+		for (int i = 0; i < 10; i++) {
+			g.Draw(dartBoardMaskArray[i], hitAreaArray[i]);
+		}
+
 		
 		// ダーツ台を回転させる
 		dartBoard.SetRotationX(0.05f);
 		// mask
-		dartBoardmask00.SetRotationX(0.05f);
-		dartBoardmask01.SetRotationX(0.05f);
-		dartBoardmask02.SetRotationX(0.05f);
-		dartBoardmask03.SetRotationX(0.05f);
-		dartBoardmask04.SetRotationX(0.05f);
-		dartBoardmask05.SetRotationX(0.05f);
-		dartBoardmask06.SetRotationX(0.05f);
-		dartBoardmask07.SetRotationX(0.05f);
-		dartBoardmask08.SetRotationX(0.05f);
-		dartBoardmask09.SetRotationX(0.05f);
+		for (int i = 0; i < 10; i++) {
+			dartBoardMaskArray[i]->SetRotationX(0.05f);
+		}
 		
 		// ダーツが台に当たったかどうかを判定
-		if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard1)
-			|| dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard2)
-			|| dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard3)
-			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard4)
-			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard5)
-			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard6)
-			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard7)
-			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard8)
-			|| dart.whereToHitDartBoard( &hitArea_Dart_and_DartBoard9)) {
+		if (dart.whereToHitDartBoard(hitAreaArray[0])
+			|| dart.whereToHitDartBoard(hitAreaArray[1])
+			|| dart.whereToHitDartBoard(hitAreaArray[2])
+			|| dart.whereToHitDartBoard(hitAreaArray[3])
+			|| dart.whereToHitDartBoard(hitAreaArray[4])
+			|| dart.whereToHitDartBoard(hitAreaArray[5])
+			|| dart.whereToHitDartBoard(hitAreaArray[6])
+			|| dart.whereToHitDartBoard(hitAreaArray[7])
+			|| dart.whereToHitDartBoard(hitAreaArray[8])
+			|| dart.whereToHitDartBoard(hitAreaArray[9])) {
 			
 			// ダーツが当たったフラグを立てる
 			dart.setHitDartBoard(true);
 			dartBoard.setHitDart(true);
 
 			if (!dart.getHitOnce()) {
-				
-				// どこにダーツが当たったかを判定する
-				if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard0)) {
-					std::cout << "hit 0 point zone" << std::endl;
-					point = 0;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard1)) {
-					std::cout << "hit 1 point zone" << std::endl;
-					point = 1;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard2)) {
-					std::cout << "hit 2 point zone" << std::endl;
-					point = 2;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard3)) {
-					std::cout << "hit 3 point zone" << std::endl;
-					point = 3;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard4)) {
-					std::cout << "hit 4 point zone" << std::endl;
-					point = 4;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard5)) {
-					std::cout << "hit 5 point zone" << std::endl;
-					point = 5;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard6)) {
-					std::cout << "hit 6 point zone" << std::endl;
-					point = 6;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard7)) {
-					std::cout << "hit 7 point zone" << std::endl;
-					point = 7;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard8)) {
-					std::cout << "hit 8 point zone" << std::endl;
-					point = 8;
-				
-				} else if (dart.whereToHitDartBoard(&hitArea_Dart_and_DartBoard9)) {
-					std::cout << "hit 9 point zone" << std::endl;
-					point = 9;
-				
+
+				for (int i = 0; i < 10; i++) {
+					// どこにダーツが当たったかを判定する
+					if (dart.whereToHitDartBoard(hitAreaArray[i])) {
+						std::cout << "hit " << i << "point zone" << std::endl;
+						point = i;
+					}
 				}
 
 				// 1回当たったことを示すフラグをtrueにする
@@ -347,6 +268,16 @@ UINT MainLoop(WindowManager *winmgr)
 	}
 	
 	d.StopGraph();
+
+	// 動的に確保したメモリを開放する
+	for (int i = 0; i < 10; i++) {
+		delete hitAreaArray[i];
+	}
+
+	
+	for (int i = 0; i < 10; i++) {
+		delete dartBoardMaskArray[i];
+	}
 	
 	return 0;
 }
