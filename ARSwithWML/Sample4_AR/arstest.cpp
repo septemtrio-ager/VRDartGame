@@ -368,14 +368,14 @@ UINT MainLoop(WindowManager *winmgr)
 					std::cout << "hit 9 point zone" << std::endl;
 					point = 9;
 				}
+
+				// 合計ポイントを計算する
+				totalPoint += point;
 				
 				// 当たったポイントを退避しておく
 				lastPoint = point;
 				lastTotalPoint = totalPoint;
-				
-				// 合計ポイントを計算する
-				totalPoint++;
-				
+								
 				// 前に当たったポイントの表示から現在のポイント表示に変更する
 				g.Register(pointArray[point]);
 				g.Register(totalPointArray[totalPoint]);
