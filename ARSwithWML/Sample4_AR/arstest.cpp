@@ -28,13 +28,12 @@ void bg_subtract(Texture* result, Texture* background, Texture* src, DWORD borde
 const unsigned int sizex = 640; 
 const unsigned int sizey = 480;
 
-// const float hitThreshold = -3.0f;
 const float restartDartPosition = -3.0f;
 const int numberOfPlays = 3;
 
 UINT MainLoop(WindowManager *winmgr)
 {
-	ShowDebugWindow();
+	// ShowDebugWindow();
 
 	//for debug(1/2)
 	//Window window2;
@@ -57,6 +56,7 @@ UINT MainLoop(WindowManager *winmgr)
 	int lastTotalPoint = 0;
 	int lastThrewCount = 0;
 	
+	// 新しくウィンドウを生成する
 	Window window;
 	winmgr->RegisterWindow(&window);
 
@@ -97,6 +97,7 @@ UINT MainLoop(WindowManager *winmgr)
 		
 	// 流れてくるフレームを一時的に保存する
 	Texture stored (&g,sizex,sizey);
+	
 	// 身体映像を切り抜く際に背景画像として利用する
 	Texture source (&g,sizex,sizey);
 	source.SetDrawMode(TRUE);
@@ -209,13 +210,11 @@ UINT MainLoop(WindowManager *winmgr)
 			// ダーツの座標を取得する
 			dart.GetPosition(&xDart, &yDart, &zDart);
 			dart.setYDart(yDart);
-
-			// std::cout << "xDart = " << xDart << " yDart = " << yDart << " zDart = " << zDart << std::endl;
 		
 			// Aボタンを押した時の挙動
 			if (keyIn->GetKeyTrig('A')) {
 			
-				// 状況がリセットされるのでfalseに設定
+				// 状況をリセットする
 				dart.setOverlappingCount(0);
 				dart.setThrewCount(0);
 				dart.setOverlappingOnce(false);
@@ -239,8 +238,6 @@ UINT MainLoop(WindowManager *winmgr)
 				lastPoint = 0;
 				lastTotalPoint = 0;
 				lastThrewCount = 0;
-											
-				std::cout << "Aボタンが押されました" << endl;
 			}
 		
 			d.GetCamImage(&source);
@@ -309,14 +306,7 @@ UINT MainLoop(WindowManager *winmgr)
 				// ダーツが当たっていないフラグを立てる
 				dart.setHitDartBoard(false);
 			}
-		
-			// ダーツが台にあたっている時の処理
-			if (dart.getHitDartBoard()) {
-				std::cout << "hit dart board" << std::endl; 
-			} else {
-				std::cout << "not hit dart board" << std::endl;
-			}
-				
+						
 			// ダーツを動かす
 			dart.react(&hitArea_Hand_and_Dart);
 			dart.move();
@@ -328,11 +318,6 @@ UINT MainLoop(WindowManager *winmgr)
 				g.Unregister(threwNumberArray[lastThrewCount]);
 				g.Register(threwNumberArray[threwCount]);
 			}
-
-			std::cout << "Now you get " << point << " Point" << std::endl;
-		
-			// マスクウインドウのダーツの動きもさせる
-			// maskDart.SetPosition(xDart, yDart, zDart);
 		
 			// 身体映像の切り抜きを行う
 			bg_subtract(&mainScreen, &stored, &source, 0x20202020);
@@ -340,10 +325,7 @@ UINT MainLoop(WindowManager *winmgr)
 			//for debug(2/2)
 			//debug = hitArea;
 			//arsgd.Draw(&debug);
-		
 			
-			// maskG.Draw();
-
 		} else {
 
 			// GameOver
@@ -380,7 +362,6 @@ UINT MainLoop(WindowManager *winmgr)
 			}
 			
 			if (keyIn->GetKeyTrig('Q')) break;
-
 		}
 
 		g.Draw();
@@ -598,284 +579,3 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 #endif
     return 0;
 }
-
-
-
-
-//#pragma once
-//
-//#include <windows.h>
-//#include <tchar.h>
-//#define D3D_DEBUG_INFO
-//#include <stdlib.h>
-//#include <math.h>
-//
-//
-//#include "../WML/WindowManager.h"
-//#include "arstest.h"
-//
-////-----------------------------------------------------------------------------
-//// Name: WinMain()
-//// Desc: The application's entry point
-////-----------------------------------------------------------------------------
-//
-//const int sizex  = 640;
-//const int sizey = 480;
-
-//UINT MainLoop(WindowManager *winmgr)
-//{
-//	ShowDebugWindow();
-//	Window window;
-//	winmgr->RegisterWindow(&window);
-//
-//	ARSG g(window.hWnd, sizex, sizey, true);
-//	g.SetBackgroundColor(255,0,0,0);
-//
-//	Light light;
-//	g.CreateLight(&light);
-//	g.RegisterLight(&light);
-//
-//	Texture screen;
-//	g.CreateTexture(&screen, L"beach.jpg");
-//	screen.SetDrawMode(TRUE);
-//	g.RegisterShape(&screen);
-//
-//	Mesh sphere;
-//	g.CreateMesh(&sphere, L"ball.x");	
-//	sphere.SetPosition(0.0f, 5.0f, 0.0f,GL_ABSOLUTE);
-//	g.RegisterShape(&sphere);
-//	
-//	while (!winmgr->WaitingForTermination()){
-//		sphere.SetRotationY(0.01f);						
-//		sphere.SetPosition(0.01f,0.0f,0.0f,GL_RELATIVE);
-//		g.Draw();
-//	}
-//
-//	return 0;
-//}
-
-//const int sizex  = 640;
-//const int sizey = 480;
-//
-//UINT MainLoop(WindowManager *winmgr)
-//{
-////	ShowDebugWindow();
-//	Window window;
-//	winmgr->RegisterWindow(&window);
-//
-//	ARSG g(window.hWnd, sizex, sizey, true);
-//	g.SetBackgroundColor(255,0,0,0);
-//
-//	Light light;
-//	g.CreateLight(&light);
-//	g.RegisterLight(&light);
-//
-//	Texture screen;
-//	g.CreateTexture(&screen, sizex, sizey);
-//	screen.SetDrawMode(TRUE);
-//	g.RegisterShape(&screen);
-//
-//	Mesh sphere;
-//	g.CreateMesh(&sphere, L"ball.x");	
-//	g.RegisterShape(&sphere);
-//
-//	ARSD d;
-//	d.Init();
-//	d.AttachCam(0);
-//	d.StartGraph();
-//	g.SetEnvironmentTexture(&screen);
-//	
-//	while (!winmgr->WaitingForTermination()){
-//		sphere.SetRotationY(0.01f);						
-//		d.GetCamImage(&screen);
-//		g.Draw();
-//	}
-//
-//	return 0;
-//}
-
-//
-//int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
-//{
-//	WindowManager program(hInstance, &MainLoop);
-//#ifdef DEBUG
-//    MessageBox(NULL,L"OK?",TEXT(APPNAME), NULL);
-//#endif
-//    return 0;
-//}
-
-//#pragma once
-//
-//#include "arstest.h"
-//#include "../WML/WindowManager.h"
-//#include <windows.h>
-//#include <tchar.h>
-//#define D3D_DEBUG_INFO
-//
-//#include <stdlib.h>
-//#include <math.h>
-//
-////-----------------------------------------------------------------------------
-//// Name: WinMain()
-//// Desc: The application's entry point
-////-----------------------------------------------------------------------------
-//
-//
-//void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
-//unsigned int sizex, sizey, depth;
-//
-//
-//UINT MainLoop(WindowManager *winmgr)
-//{
-////	ShowDebugWindow();
-//	Window window;
-//	winmgr->RegisterWindow(&window);
-//
-//
-//	sizex = 640;
-//	sizey = 480;
-//	depth = 4;
-//
-//	ARSG g(window.hWnd, sizex, sizey, true);
-//	ARSD d;
-//	Light light;
-//	
-//	g.CreateLight(&light);
-//	g.RegisterLight(&light);
-//	Texture sourceTex;
-//	g.CreateTexture(&sourceTex, sizex, sizey);
-////	g.CreateTexture(&sourceTex, L".\\fan.png");
-//
-//	d.Init();
-//	d.AttachCam(0);
-//	d.StartGraph();
-//
-//	g.SetBackgroundColor(255,0,0,0);
-//
-//	//sourceTex.SetPosition(0,0,0);
-//	Texture hitArea, stored, source;
-//	g.CreateTexture(&hitArea,640,480);
-//	g.CreateTexture(&stored,640,480);
-//	g.CreateTexture(&source,640,480);
-//
-//	source.SetDrawMode(TRUE);
-//	g.RegisterShape(&source);
-//
-//	Touchable ball(&g);
-//	g.CreateMesh(&ball, L"ball.x");
-//	ball.SetScale(2.0f, 2.0f, 2.0f);
-//	ball.SetPosition(0.0f, 5.0f, 0.0f,GL_ABSOLUTE);
-//
-//	g.RegisterShape(&ball);
-//
-//	source.SetScale(1,1,1);
-//
-//	ARSI *keyIn = window.GetInputHandler();
-//	while(d.GetCamImage(&source) < 5);
-//	d.GetCamImage(&stored);
-//	
-//	while (!winmgr->WaitingForTermination()){
-//		if (keyIn->GetKeyTrig('A')) {
-//			d.GetCamImage(&stored);
-//		}
-//
-//		d.GetCamImage(&source);
-//			
-//		if (keyIn->GetKeyTrig('Q')) break;
-//			
-//		subtract_maskf(&hitArea,&stored,&source,0x20202020);	
-//
-//       
-//		ball.react(&hitArea);
-//		ball.move();
-//
-//		g.Draw();
-//		
-//	}
-//	d.StopGraph();
-//	return 0;
-//}
-//
-//inline void subtract_maskf(Texture* result, Texture* backgrnd, Texture* src, DWORD border)
-//{
-//	ARSC::diff(result,backgrnd,src,border);
-//	ARSC::monochrome(result,result);
-//	ARSC::createmaskf(result,result,border);
-//}
-//
-//
-//inline bool Touchable::check_overlap(Texture* hitArea, unsigned int threshold)
-//{
-//	Texture txtr;
-//	int pixel_count;
-//
-//	g->CreateTexture(&txtr, sizex, sizey);
-//	g->Draw(this,&txtr);
-//	ARSC::and(hitArea, hitArea, &txtr, 0x10101010);
-//
-//	ARSC::getCG(&gx, &gy, &pixel_count, hitArea);	
-//	return pixel_count > threshold;
-//}
-//
-//
-//inline void Touchable::react(Texture* _hitArea)
-//{
-//	bool overlap = check_overlap(_hitArea,100);
-//
-//	VECTOR2D c;	
-//	g->Convert3Dto2D(&c, GetPosition());
-//
-//	switch (state) {
-//		case ACTIVE:
-//			if (overlap) {
-//				vx = (c.x - gx) * 0.05f;
-//				vy = -(c.y - gy) * 0.05f;
-//				state = INACTIVE;
-//			}
-//			break;
-//		case INACTIVE:
-//			if (!overlap)
-//				state = ACTIVE;
-//			break;
-//		default:
-//			break;
-//	}
-//}
-//
-//inline void Touchable::move()
-//{
-//	VECTOR2D c;
-//
-//	g->Convert3Dto2D(&c, GetPosition());
-//		
-//	//枠の反射
-//	if (c.x < 0 || c.x > sizex)	vx *= -1.0f;
-//	if (c.y > sizey-50 && vy<0)	vy *= -1.0f;
-//
-//	//自由落下または停止
-//	if (c.y > sizey-50 && vy<0.03f) 
-//		vy = 0;
-//	else
-//		vy -= 0.03f;
-//
-//	//空気抵抗
-//	vx *= 0.8f;
-//	vy *= 0.8f;
-//
-//   SetPosition(vx, vy, 0.0f, GL_RELATIVE);
-//}
-//
-//inline void Touchable::setARSG(ARSG* _g)
-//{
-//	g = _g;
-//}
-//
-//
-//int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
-//{
-//	WindowManager program(hInstance, &MainLoop);
-//#ifdef DEBUG
-//    MessageBox(NULL,L"OK?",TEXT(APPNAME), NULL);
-//#endif
-//    return 0;
-//}
