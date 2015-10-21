@@ -34,7 +34,7 @@ const int numberOfPlays = 3;
 
 UINT MainLoop(WindowManager *winmgr)
 {
-	ShowDebugWindow();
+	// ShowDebugWindow();
 
 	//for debug(1/2)
 	//Window window2;
