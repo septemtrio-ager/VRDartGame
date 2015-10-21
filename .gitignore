@@ -9,3 +9,10 @@ ARSwithWML/Sample4_AR/*
 
 !*.cpp
 !*.h
+
+*.tex
+*.dvi
+*.log
+*.pdf
+*.xbb
+*.aux
