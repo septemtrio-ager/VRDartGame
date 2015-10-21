@@ -211,7 +211,9 @@ UINT MainLoop(WindowManager *winmgr)
 		
 			// Aボタンを押した時の挙動
 			if (keyIn->GetKeyTrig('A')) {
-			
+
+				d.GetCamImage(&stored);
+				
 				// 状況がリセットされるのでfalseに設定
 				dart.setOverlappingCount(0);
 				dart.setThrewCount(0);
