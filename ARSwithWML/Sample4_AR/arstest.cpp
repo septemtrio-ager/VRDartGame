@@ -46,13 +46,16 @@ UINT MainLoop(WindowManager *winmgr)
 	
 	// ダーツとダーツ台の座標を格納する
 	float xDart, yDart, zDart;
-	
+
 	int pGx, pGy;
 
 	int point = 0;
 	int totalPoint = 0;
+	int threwCount = 0;
+	
 	int lastPoint = 0;
 	int lastTotalPoint = 0;
+	int lastThrewCount = 0;
 	
 	Window window;
 	winmgr->RegisterWindow(&window);
@@ -178,6 +181,20 @@ UINT MainLoop(WindowManager *winmgr)
 		totalPointArray[i]->SetDrawMode(TRUE);
 	}
 	g.Register(totalPointArray[0]);
+
+	// 投げた回数を表示させる
+	Texture *threwNumberArray[3];
+	threwNumberArray[0] = new Texture(&g, L"../../../material/threw/1.png");
+	threwNumberArray[1] = new Texture(&g, L"../../../material/threw/2.png");
+	threwNumberArray[2] = new Texture(&g, L"../../../material/threw/3.png");
+	for (int i = 0; i < 3; i++) {
+		threwNumberArray[i]->SetDrawMode(TRUE);
+	}
+	g.Register(threwNumberArray[0]);
+	
+	// Game Over画面を読み込む
+	Texture gameover(&g, L"../../../material/gameover.png");
+	gameover.SetDrawMode(TRUE);
 		
 	ARSI *keyIn = window.GetInputHandler();
 	
@@ -186,125 +203,190 @@ UINT MainLoop(WindowManager *winmgr)
 	// アニメーションの制御部分
 	while (!winmgr->WaitingForTermination()){
 
-		// ダーツの座標を取得する
-		dart.GetPosition(&xDart, &yDart, &zDart);
-		dart.setYDart(yDart);
-
-		// std::cout << "xDart = " << xDart << " yDart = " << yDart << " zDart = " << zDart << std::endl;
+		// 3回投げたかどうかを判定する
+		if (dart.getOverlappingCount() < numberOfPlays) {
 		
-		// Aボタンを押した時の挙動
-		if (keyIn->GetKeyTrig('A')) {
-			
-			d.GetCamImage(&stored);
-			
-			// 状況がリセットされるのでfalseに設定
-			dart.setOverlappingOnce(false);
-			dart.setHitOnce(false);
-			dart.SetPosition(6.0f, 3.0f, 0.0f);
+			// ダーツの座標を取得する
+			dart.GetPosition(&xDart, &yDart, &zDart);
+			dart.setYDart(yDart);
 
-			// 獲得したポイントもリセット
-			point = 0;
-			
-			std::cout << "Aボタンが押されました" << endl;
-		}
+			// std::cout << "xDart = " << xDart << " yDart = " << yDart << " zDart = " << zDart << std::endl;
 		
-		d.GetCamImage(&source);
-
-		
-		if (keyIn->GetKeyTrig('Q')) break;
+			// Aボタンを押した時の挙動
+			if (keyIn->GetKeyTrig('A')) {
 			
-		// ダーツの矢と手が接触している領域のマスク画像を作成
-		subtract_maskf(&hitArea_Hand_and_Dart,&stored,&source,0x20202020);
+				// 状況がリセットされるのでfalseに設定
+				dart.setOverlappingCount(0);
+				dart.setThrewCount(0);
+				dart.setOverlappingOnce(false);
+				dart.setHitOnce(false);
+				dart.SetPosition(6.0f, 3.0f, 0.0f);
 
-		// ダーツの矢とダーツ台が接触している領域のマスク画像を作成
-		for (int i = 0; i < 10; i++) {
-			g.Draw(dartBoardMaskArray[i], hitAreaArray[i]);
-		}
-
-		
-		// ダーツ台を回転させる
-		dartBoard.SetRotationX(0.05f);
-		// mask
-		for (int i = 0; i < 10; i++) {
-			dartBoardMaskArray[i]->SetRotationX(0.05f);
-		}
-		
-		// ダーツが台に当たったかどうかを判定
-		if (dart.whereToHitDartBoard(hitAreaArray[0])
-			|| dart.whereToHitDartBoard(hitAreaArray[1])
-			|| dart.whereToHitDartBoard(hitAreaArray[2])
-			|| dart.whereToHitDartBoard(hitAreaArray[3])
-			|| dart.whereToHitDartBoard(hitAreaArray[4])
-			|| dart.whereToHitDartBoard(hitAreaArray[5])
-			|| dart.whereToHitDartBoard(hitAreaArray[6])
-			|| dart.whereToHitDartBoard(hitAreaArray[7])
-			|| dart.whereToHitDartBoard(hitAreaArray[8])
-			|| dart.whereToHitDartBoard(hitAreaArray[9])) {
-			
-			// ダーツが当たったフラグを立てる
-			dart.setHitDartBoard(true);
-			dartBoard.setHitDart(true);
-
-			if (!dart.getHitOnce()) {
-
-				// 前回の点数を消す
-				g.Unregister(pointArray[lastPoint]);
-				g.Unregister(totalPointArray[lastTotalPoint]);
+				// 得点表示をリセット
+				g.Unregister(totalPointArray[totalPoint]);
+				g.Unregister(pointArray[point]);
+				g.Unregister(threwNumberArray[threwCount]);
 				
-				for (int i = 0; i < 10; i++) {
-					// どこにダーツが当たったかを判定する
-					if (dart.whereToHitDartBoard(hitAreaArray[i])) {
-						std::cout << "hit " << i << "point zone" << std::endl;
-						point = i;
+				g.Register(pointArray[0]);
+				g.Register(totalPointArray[0]);
+				g.Register(threwNumberArray[0]);
+
+				// 獲得したポイントもリセット
+				point = 0;
+				totalPoint = 0;
+				threwCount = 0;
+				
+				lastPoint = 0;
+				lastTotalPoint = 0;
+				lastThrewCount = 0;
+											
+				std::cout << "Aボタンが押されました" << endl;
+			}
+		
+			d.GetCamImage(&source);
+		
+			if (keyIn->GetKeyTrig('Q')) break;
+			
+			// ダーツの矢と手が接触している領域のマスク画像を作成
+			subtract_maskf(&hitArea_Hand_and_Dart,&stored,&source,0x20202020);
+
+			// ダーツの矢とダーツ台が接触している領域のマスク画像を作成
+			for (int i = 0; i < 10; i++) {
+				g.Draw(dartBoardMaskArray[i], hitAreaArray[i]);
+			}
+		
+			// ダーツ台を回転させる
+			dartBoard.SetRotationX(0.05f);
+			// mask
+			for (int i = 0; i < 10; i++) {
+				dartBoardMaskArray[i]->SetRotationX(0.05f);
+			}
+		
+			// ダーツが台に当たったかどうかを判定
+			if (dart.whereToHitDartBoard(hitAreaArray[0])
+				|| dart.whereToHitDartBoard(hitAreaArray[1])
+				|| dart.whereToHitDartBoard(hitAreaArray[2])
+				|| dart.whereToHitDartBoard(hitAreaArray[3])
+				|| dart.whereToHitDartBoard(hitAreaArray[4])
+				|| dart.whereToHitDartBoard(hitAreaArray[5])
+				|| dart.whereToHitDartBoard(hitAreaArray[6])
+				|| dart.whereToHitDartBoard(hitAreaArray[7])
+				|| dart.whereToHitDartBoard(hitAreaArray[8])
+				|| dart.whereToHitDartBoard(hitAreaArray[9])) {
+			
+				// ダーツが当たったフラグを立てる
+				dart.setHitDartBoard(true);
+				dartBoard.setHitDart(true);
+
+				if (!dart.getHitOnce()) {
+
+					// 前回の点数を消す
+					g.Unregister(pointArray[lastPoint]);
+					g.Unregister(totalPointArray[lastTotalPoint]);
+				
+					for (int i = 0; i < 10; i++) {
+						// どこにダーツが当たったかを判定する
+						if (dart.whereToHitDartBoard(hitAreaArray[i])) {
+							std::cout << "hit " << i << "point zone" << std::endl;
+							point = i;
+						}
 					}
-				}
 
-				// 合計ポイントを計算する
-				totalPoint += point;
+					// 合計ポイントを計算する
+					totalPoint += point;
 				
-				// 当たったポイントを退避しておく
-				lastPoint = point;
-				lastTotalPoint = totalPoint;
+					// 当たったポイントを退避しておく
+					lastPoint = point;
+					lastTotalPoint = totalPoint;
 								
-				// 前に当たったポイントの表示から現在のポイント表示に変更する
-				g.Register(pointArray[point]);
-				g.Register(totalPointArray[totalPoint]);
+					// 前に当たったポイントの表示から現在のポイント表示に変更する
+					g.Register(pointArray[point]);
+					g.Register(totalPointArray[totalPoint]);
 				
-				// 1回当たったことを示すフラグをtrueにする
-				dart.setHitOnce(true);
+					// 1回当たったことを示すフラグをtrueにする
+					dart.setHitOnce(true);
+				}
+			
+			} else {
+			
+				// ダーツが当たっていないフラグを立てる
+				dart.setHitDartBoard(false);
+			}
+		
+			// ダーツが台にあたっている時の処理
+			if (dart.getHitDartBoard()) {
+				std::cout << "hit dart board" << std::endl; 
+			} else {
+				std::cout << "not hit dart board" << std::endl;
+			}
+				
+			// ダーツを動かす
+			dart.react(&hitArea_Hand_and_Dart);
+			dart.move();
+
+			// 投げた回数を表示できるようにする
+			if (threwCount < 3) {
+				lastThrewCount = threwCount;
+				threwCount = dart.getThrewCount(); 
+				g.Unregister(threwNumberArray[lastThrewCount]);
+				g.Register(threwNumberArray[threwCount]);
+			}
+
+			std::cout << "Now you get " << point << " Point" << std::endl;
+		
+			// マスクウインドウのダーツの動きもさせる
+			// maskDart.SetPosition(xDart, yDart, zDart);
+		
+			// 身体映像の切り抜きを行う
+			bg_subtract(&mainScreen, &stored, &source, 0x20202020);
+		
+			//for debug(2/2)
+			//debug = hitArea;
+			//arsgd.Draw(&debug);
+		
+			
+			// maskG.Draw();
+
+		} else {
+
+			// GameOver
+			g.Register(&gameover);
+			
+			totalPointArray[totalPoint]->SetPosition(-4.0f, -3.0f, 0.0f);
+			g.Register(totalPointArray[totalPoint]);
+
+			if (keyIn->GetKeyTrig('A')) {
+
+				dart.setOverlappingCount(0);
+				dart.setThrewCount(0);
+				dart.setOverlappingOnce(false);
+				dart.setHitOnce(false);
+				dart.SetPosition(6.0f, 3.0f, 0.0f);
+
+				g.Unregister(&gameover);
+				
+				g.Unregister(totalPointArray[totalPoint]);
+				g.Unregister(pointArray[point]);
+				g.Unregister(threwNumberArray[threwCount]);
+				
+				g.Register(pointArray[0]);
+				g.Register(totalPointArray[0]);
+				g.Register(threwNumberArray[0]);
+								
+				point = 0;
+				totalPoint = 0;
+				threwCount = 0;
+								
+				lastPoint = 0;
+				lastTotalPoint = 0;
+				lastThrewCount = 0;
 			}
 			
-		} else {
-			
-			// ダーツが当たっていないフラグを立てる
-			dart.setHitDartBoard(false);
-		}
-		
-		// ダーツが台にあたっている時の処理
-		if (dart.getHitDartBoard()) {
-			std::cout << "hit dart board" << std::endl; 
-		} else {
-			std::cout << "not hit dart board" << std::endl;
-		}
-				
-		// ダーツを動かす
-		dart.react(&hitArea_Hand_and_Dart);
-		dart.move();
+			if (keyIn->GetKeyTrig('Q')) break;
 
-		std::cout << "Now you get " << point << " Point" << std::endl;
-		
-		// マスクウインドウのダーツの動きもさせる
-		// maskDart.SetPosition(xDart, yDart, zDart);
-		
-		// 身体映像の切り抜きを行う
-		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
-		
-		//for debug(2/2)
-		//debug = hitArea;
-		//arsgd.Draw(&debug);
-		
+		}
+
 		g.Draw();
-		// maskG.Draw();
 	}
 	
 	d.StopGraph();
@@ -315,6 +397,11 @@ UINT MainLoop(WindowManager *winmgr)
 		delete dartBoardMaskArray[i];
 		delete pointArray[i];
 	}
+
+	for (int i = 0; i < 3; i++) {
+		delete threwNumberArray[i];
+	}
+
 	
 	return 0;
 }
@@ -366,19 +453,19 @@ inline void Touchable::react(Texture* _hitArea)
 	GetARSG()->Convert3Dto2D(&c, GetPosition());
 
 	switch (state) {
-		case ACTIVE:
-			if (overlapping) {
-				vx = (c.x - gx) * 0.05f;
-				vy = -(c.y - gy) * 0.05f;
-				state = INACTIVE;
-			}
-			break;
-		case INACTIVE:
-			if (!overlapping)
-				state = ACTIVE;
-			break;
-		default:
-			break;
+	case ACTIVE:
+		if (overlapping) {
+			vx = (c.x - gx) * 0.05f;
+			vy = -(c.y - gy) * 0.05f;
+			state = INACTIVE;
+		}
+		break;
+	case INACTIVE:
+		if (!overlapping)
+			state = ACTIVE;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -392,17 +479,17 @@ inline void Touchable::move()
 	if (c.y > sizey-50 && vy<0)	// vy *= -1.0f;
 
 	
-	if (c.y > sizey - 50 && vy < 0.03f) {
-		// vy = 0;
-	}
-	else{
-		// vy -= 0.03f;
-	}
+		if (c.y > sizey - 50 && vy < 0.03f) {
+			// vy = 0;
+		}
+		else{
+			// vy -= 0.03f;
+		}
 	//空気抵抗
 	vx *= 0.8f;
 	// vy *= 0.8f;
 
-   // SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+	// SetPosition(vx, vy, 0.0f, GL_RELATIVE);
 	SetPosition(vx, 0.0f, 0.0f, GL_RELATIVE);
 }
 
@@ -419,19 +506,19 @@ inline void Dart::react(Texture* _hitArea) {
 	GetARSG()->Convert3Dto2D(&c, GetPosition());
 
 	switch (state) {
-		case ACTIVE:
-			if (overlapping) {
-				vx = (c.x - gx) * 0.05f;
-				vy = -(c.y - gy) * 0.05f;
-				state = INACTIVE;
-			}
-			break;
-		case INACTIVE:
-			if (!overlapping)
-				state = ACTIVE;
-			break;
-		default:
-			break;
+	case ACTIVE:
+		if (overlapping) {
+			vx = (c.x - gx) * 0.05f;
+			vy = -(c.y - gy) * 0.05f;
+			state = INACTIVE;
+		}
+		break;
+	case INACTIVE:
+		if (!overlapping)
+			state = ACTIVE;
+		break;
+	default:
+		break;
 	}
 
 }
@@ -482,6 +569,14 @@ inline void Dart::move() {
 
 				// スタート位置に移動させる
 				SetPosition(6.0f, 3.0f, 0.0f);
+				overlappingCount++;
+
+				
+				if (threwCount < 2) {
+					threwCount++;
+				}
+				
+				
 			}else {
 				SetPosition(vx, vy, 0.0f, GL_RELATIVE);
 			}
