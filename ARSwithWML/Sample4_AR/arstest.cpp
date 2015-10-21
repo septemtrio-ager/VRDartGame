@@ -46,14 +46,17 @@ UINT MainLoop(WindowManager *winmgr)
 	
 	// ダーツとダーツ台の座標を格納する
 	float xDart, yDart, zDart;
-	// float xDartBoart, yDartBoard, zDartBoard;
+	// float xDartBnoart, yDartBoard, zDartBoard;
 
 	int pGx, pGy;
 
 	int point = 0;
 	int totalPoint = 0;
+	int threwCount = 0;
+	
 	int lastPoint = 0;
 	int lastTotalPoint = 0;
+	int lastThrewCount = 0;
 	
 	Window window;
 	winmgr->RegisterWindow(&window);
@@ -244,6 +247,7 @@ UINT MainLoop(WindowManager *winmgr)
 			
 				// 状況がリセットされるのでfalseに設定
 				dart.setOverlappingCount(0);
+				dart.setThrewCount(0);
 				dart.setOverlappingOnce(false);
 				dart.setHitOnce(false);
 				dart.SetPosition(6.0f, 3.0f, 0.0f);
@@ -251,21 +255,25 @@ UINT MainLoop(WindowManager *winmgr)
 				// 得点表示をリセット
 				g.Unregister(totalPointArray[totalPoint]);
 				g.Unregister(pointArray[point]);
+				g.Unregister(threwNumberArray[threwCount]);
 				
 				g.Register(pointArray[0]);
 				g.Register(totalPointArray[0]);
+				g.Register(threwNumberArray[0]);
 
 				// 獲得したポイントもリセット
 				point = 0;
 				totalPoint = 0;
+				threwCount = 0;
+				
 				lastPoint = 0;
 				lastTotalPoint = 0;
-							
+				lastThrewCount = 0;
+											
 				std::cout << "Aボタンが押されました" << endl;
 			}
 		
 			d.GetCamImage(&source);
-
 		
 			if (keyIn->GetKeyTrig('Q')) break;
 			
@@ -277,7 +285,6 @@ UINT MainLoop(WindowManager *winmgr)
 			for (int i = 0; i < 10; i++) {
 				g.Draw(dartBoardMaskArray[i], hitAreaArray[i]);
 			}
-
 		
 			// ダーツ台を回転させる
 			dartBoard.SetRotationX(0.05f);
@@ -348,6 +355,14 @@ UINT MainLoop(WindowManager *winmgr)
 			dart.react(&hitArea_Hand_and_Dart);
 			dart.move();
 
+			// 投げた回数を表示できるようにする
+			if (threwCount < 3) {
+				lastThrewCount = threwCount;
+				threwCount = dart.getThrewCount(); 
+				g.Unregister(threwNumberArray[lastThrewCount]);
+				g.Register(threwNumberArray[threwCount]);
+			}
+
 			std::cout << "Now you get " << point << " Point" << std::endl;
 		
 			// マスクウインドウのダーツの動きもさせる
@@ -374,6 +389,7 @@ UINT MainLoop(WindowManager *winmgr)
 			if (keyIn->GetKeyTrig('A')) {
 
 				dart.setOverlappingCount(0);
+				dart.setThrewCount(0);
 				dart.setOverlappingOnce(false);
 				dart.setHitOnce(false);
 				dart.SetPosition(6.0f, 3.0f, 0.0f);
@@ -382,14 +398,19 @@ UINT MainLoop(WindowManager *winmgr)
 				
 				g.Unregister(totalPointArray[totalPoint]);
 				g.Unregister(pointArray[point]);
+				g.Unregister(threwNumberArray[threwCount]);
 				
 				g.Register(pointArray[0]);
 				g.Register(totalPointArray[0]);
+				g.Register(threwNumberArray[0]);
 								
 				point = 0;
 				totalPoint = 0;
+				threwCount = 0;
+								
 				lastPoint = 0;
 				lastTotalPoint = 0;
+				lastThrewCount = 0;
 			}
 			
 			if (keyIn->GetKeyTrig('Q')) break;
@@ -580,6 +601,13 @@ inline void Dart::move() {
 				// スタート位置に移動させる
 				SetPosition(6.0f, 3.0f, 0.0f);
 				overlappingCount++;
+
+				
+				if (threwCount < 2) {
+					threwCount++;
+				}
+				
+				
 			}else {
 				SetPosition(vx, vy, 0.0f, GL_RELATIVE);
 			}
