@@ -46,8 +46,7 @@ UINT MainLoop(WindowManager *winmgr)
 	
 	// ダーツとダーツ台の座標を格納する
 	float xDart, yDart, zDart;
-	// float xDartBoart, yDartBoard, zDartBoard;
-
+	
 	int pGx, pGy;
 
 	int point = 0;
@@ -72,27 +71,11 @@ UINT MainLoop(WindowManager *winmgr)
 	backgroundImage.SetDrawMode(TRUE);
 	g.Register(&backgroundImage);
 	
-	// mask windowに表示されるオブジェクト
-	// Window maskWindow;
-	// winmgr->RegisterWindow(&maskWindow);
-	
-	// ARSG maskG(maskWindow.hWnd, sizex, sizey, true);
-	// maskG.SetBackgroundColor(255, 0, 0, 0);
-	
-	// Light maskLight(&maskG);
-	// maskLight.SetLightIntensity(5.0f);
-	// maskG.Register(&maskLight);
-	
 	// ウィンドウに表示される映像
 	Texture mainScreen(&g, sizex, sizey);
 	mainScreen.SetDrawMode(TRUE);
 	g.Register(&mainScreen);
-
-	// mask
-	// Texture maskScreen(&maskG, sizex, sizey);
-	// maskScreen.SetDrawMode(TRUE);
-	// maskG.Register(&maskScreen);
-
+	
 	ARSD d;
 	d.Init();
 	d.AttachCam(0);
@@ -114,10 +97,6 @@ UINT MainLoop(WindowManager *winmgr)
 	// 身体映像を切り抜く際に背景画像として利用する
 	Texture source (&g,sizex,sizey);
 	source.SetDrawMode(TRUE);
-
-	// mask
-	// Texture maskSource(&g, sizex, sizey);
-	// maskSource.SetDrawMode(TRUE);
 	
 	// ダーツの矢
 	Dart dart(&g, L"../../../material/dart.x");
@@ -131,13 +110,6 @@ UINT MainLoop(WindowManager *winmgr)
 	dartBoard.SetPosition(-6.5f, 0.0f, 0.0f);
 	g.Register(&dartBoard);
 
-	// mask
-	// マスクとなるダーツ
-	// Dart maskDart(&g, L"../../../material/white_dart.x");
-	// maskDart.SetScale(2.0f, 2.0f, 2.0f);
-	// maskDart.SetPosition(6.0f, 3.0f, 0.0f);
-	// g.Register(&maskDart);
-		
 	// ダーツ台の得点の範囲のマスク
 	DartBoard *dartBoardMaskArray[10];
 	dartBoardMaskArray[0] = new DartBoard(&g, L"../../../material/mask/0mask.x");
@@ -229,9 +201,6 @@ UINT MainLoop(WindowManager *winmgr)
 			dart.setOverlappingOnce(false);
 			dart.setHitOnce(false);
 			dart.SetPosition(6.0f, 3.0f, 0.0f);
-			
-			// マスクダーツの動きもリセット
-			// maskDart.SetPosition(xDart, yDart, zDart);
 
 			// 獲得したポイントもリセット
 			point = 0;
@@ -246,7 +215,6 @@ UINT MainLoop(WindowManager *winmgr)
 			
 		// ダーツの矢と手が接触している領域のマスク画像を作成
 		subtract_maskf(&hitArea_Hand_and_Dart,&stored,&source,0x20202020);
-		// subtract_maskf(&hitArea_Dart_and_DartBoard0, &g, &g, 0x20202020);
 
 		// ダーツの矢とダーツ台が接触している領域のマスク画像を作成
 		for (int i = 0; i < 10; i++) {
