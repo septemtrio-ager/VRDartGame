@@ -407,6 +407,11 @@ UINT MainLoop(WindowManager *winmgr)
 		delete dartBoardMaskArray[i];
 		delete pointArray[i];
 	}
+
+	for (int i = 0; i < 3; i++) {
+		delete threwNumberArray[i];
+	}
+
 	
 	return 0;
 }
