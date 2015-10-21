@@ -207,6 +207,16 @@ UINT MainLoop(WindowManager *winmgr)
 	}
 	g.Register(totalPointArray[0]);
 
+	// “Š‚°‚½‰ñ”‚ğ•\¦‚³‚¹‚é
+	Texture *threwNumberArray[3];
+	threwNumberArray[0] = new Texture(&g, L"../../../material/threw/1.png");
+	threwNumberArray[1] = new Texture(&g, L"../../../material/threw/2.png");
+	threwNumberArray[2] = new Texture(&g, L"../../../material/threw/3.png");
+	for (int i = 0; i < 3; i++) {
+		threwNumberArray[i]->SetDrawMode(TRUE);
+	}
+	g.Register(threwNumberArray[0]);
+	
 	// Game Over‰æ–Ê‚ğ“Ç‚İ‚Ş
 	Texture gameover(&g, L"../../../material/gameover.png");
 	gameover.SetDrawMode(TRUE);
