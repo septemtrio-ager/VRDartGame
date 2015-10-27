@@ -23,6 +23,8 @@ using namespace std;
 
 
 void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
+void bg_subtract(Texture* result, Texture* bg, Texture* src, DWORD border);
+
 const unsigned int sizex = 640; 
 const unsigned int sizey = 480;
 
@@ -44,39 +46,62 @@ UINT MainLoop(WindowManager *winmgr)
 	ARSG g(window.hWnd, sizex, sizey, true);
 	g.SetBackgroundColor(255,0,0,0);
 
-	Light light(&g);	
+	Light light(&g);
+	light.SetLightIntensity(5.0f);
 	g.Register(&light);
 
+	// 背景画像を設定する
+	Texture backgroundImage(&g, L"../../../material/background.jpg");
+	backgroundImage.SetDrawMode(TRUE);
+	g.Register(&backgroundImage);
+
+	// ウインドウに表示される映像
+	Texture mainScreen(&g, sizex, sizey);
+	mainScreen.SetDrawMode(TRUE);
+	g.Register(&mainScreen);
+	
 	ARSD d;
 	d.Init();
 	d.AttachCam(0);
 	d.StartGraph();
 	
-	Texture hitArea(&g,sizex,sizey);
+	// 手とダーツが接触している領域を格納する
+	Texture hitArea_Hand_and_Dart(&g,sizex,sizey);
+	// 流れてくるフレームを一時的に保存する
 	Texture stored (&g,sizex,sizey);
+	// 身体映像を切り抜く際に背景映像として利用する
 	Texture source (&g,sizex,sizey);
 	source.SetDrawMode(TRUE);
-	g.Register(&source);
 
-	Touchable ball(&g, L"ball.x");	
-	ball.SetScale(2.0f, 2.0f, 2.0f);
-	ball.SetPosition(0.0f, 6.0f, 0.0f,GL_ABSOLUTE);		
-	g.Register(&ball);
+	// ダーツオブジェクト
+	Dart dart(&g, L"../../../material/dart.x");
+	dart.SetScale(2.0f, 2.0f, 2.0f);
+	dart.SetPosition(6.0f, 3.0f, 0.0f);
+	g.Register(&dart);
 
+	// ダーツボードオブジェクト
+	DartBoard dartBoard(&g, L"../../../material/dartBoard.x");
+	dartBoard.SetScale(0.8f, 0.8f, 0.8f);
+	dartBoard.SetPosition(-6.5f, 0.0f, 0.0f);
+	g.Register(&dartBoard);
+	
 	ARSI *keyIn = window.GetInputHandler();
 	
 	while(!d.GetCamImage(&stored));
 
 	while (!winmgr->WaitingForTermination()){
-		if (keyIn->GetKeyTrig('A'))
+		
+		if (keyIn->GetKeyTrig('A')){
 			d.GetCamImage(&stored);
+		}
+		
 		d.GetCamImage(&source);
+		
 		if (keyIn->GetKeyTrig('Q')) break;
 			
-		subtract_maskf(&hitArea,&stored,&source,0x20202020);	
+		subtract_maskf(&hitArea_Hand_and_Dart,&stored,&source,0x20202020);	
 		
-		ball.react(&hitArea);
-		ball.move();
+		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
 
 		//for debug(2/2)
 		//debug = hitArea;
@@ -159,6 +184,11 @@ inline void Touchable::move()
    SetPosition(vx, vy, 0.0f, GL_RELATIVE);
 }
 
+inline void bg_subtract(Texture* result, Texture* backgrnd, Texture* src, DWORD border)
+{
+	subtract_maskf(result,backgrnd,src,border);
+	ARSC::maskFilter(result,src,result);
+}
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
