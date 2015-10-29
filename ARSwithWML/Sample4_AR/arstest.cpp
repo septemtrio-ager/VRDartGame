@@ -279,6 +279,11 @@ UINT MainLoop(WindowManager *winmgr)
 
 				if (!dart.getHitOnce()) {
 
+					// 当たった時の座標を取得する
+					dart.GetPosition(&xDart, &yDart, &zDart);
+					dart.setXDart(xDart);
+					dart.setYDart(yDart);
+
 					// 前回の点数を消す
 					g.Unregister(pointArray[lastPoint]);
 					g.Unregister(totalPointArray[lastTotalPoint]);
@@ -523,12 +528,14 @@ inline void Dart::move() {
 
 	VECTOR2D c;
 	GetARSG()->Convert3Dto2D(&c, GetPosition());
+	float angle = 0;
 
 	if (overlappingOnce){
 
 		//枠の反射
-		if (c.x < 0 || c.x > sizex)	{
-			vx *= -1.0f;
+		if (c.x < 200 || c.x > sizex)	{
+			// vx *= -1.0f;
+			vx = 0;
 		}
 		if (c.y > sizey - 50 && vy<0)	{
 			vy *= -1.0f;
@@ -551,6 +558,9 @@ inline void Dart::move() {
 
 		if (yDart > restartDartPosition) {
 			SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+			// SetPosition(cos(angle) - xDart, sin(angle) - yDart, cos(angle))
+				;
+			
 		} else {
 			
 			// 落ちるのが終わったときの処理
@@ -575,6 +585,7 @@ inline void Dart::move() {
 				
 			}else {
 				SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+				// SetPosition(cos(angle) - xDart, sin(angle) - yDart, cos(angle));
 			}
 		}
 	}
