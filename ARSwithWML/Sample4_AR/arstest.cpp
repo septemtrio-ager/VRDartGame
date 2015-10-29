@@ -31,9 +31,11 @@ const unsigned int sizey = 480;
 const float restartDartPosition = -3.0f;
 const int numberOfPlays = 3;
 
+const float thresholdX = -4.0f;
+
 UINT MainLoop(WindowManager *winmgr)
 {
-	// ShowDebugWindow();
+	ShowDebugWindow();
 
 	//for debug(1/2)
 	//Window window2;
@@ -112,22 +114,39 @@ UINT MainLoop(WindowManager *winmgr)
 	dartBoard.SetPosition(-6.5f, 0.0f, 0.0f);
 	g.Register(&dartBoard);
 
-	// ダーツ台の得点の範囲のマスク
-	DartBoard *dartBoardMaskArray[10];
-	dartBoardMaskArray[0] = new DartBoard(&g, L"../../../material/mask/0mask.x");
-	dartBoardMaskArray[1] = new DartBoard(&g, L"../../../material/mask/1mask.x");
-	dartBoardMaskArray[2] = new DartBoard(&g, L"../../../material/mask/2mask.x");
-	dartBoardMaskArray[3] = new DartBoard(&g, L"../../../material/mask/3mask.x");
-	dartBoardMaskArray[4] = new DartBoard(&g, L"../../../material/mask/4mask.x");
-	dartBoardMaskArray[5] = new DartBoard(&g, L"../../../material/mask/5mask.x");
-	dartBoardMaskArray[6] = new DartBoard(&g, L"../../../material/mask/6mask.x");
-	dartBoardMaskArray[7] = new DartBoard(&g, L"../../../material/mask/7mask.x");
-	dartBoardMaskArray[8] = new DartBoard(&g, L"../../../material/mask/8mask.x");
-	dartBoardMaskArray[9] = new DartBoard(&g, L"../../../material/mask/9mask.x");
+	DartBoard *dartBoardPoint[10];
+	dartBoardPoint[0] = new DartBoard(&g, L"../../../material/pointzone/0point.x");
+	dartBoardPoint[1] = new DartBoard(&g, L"../../../material/pointzone/1point.x");
+	dartBoardPoint[2] = new DartBoard(&g, L"../../../material/pointzone/2point.x");
+	dartBoardPoint[3] = new DartBoard(&g, L"../../../material/pointzone/3point.x");
+	dartBoardPoint[4] = new DartBoard(&g, L"../../../material/pointzone/4point.x");
+	dartBoardPoint[5] = new DartBoard(&g, L"../../../material/pointzone/5point.x");
+	dartBoardPoint[6] = new DartBoard(&g, L"../../../material/pointzone/6point.x");
+	dartBoardPoint[7] = new DartBoard(&g, L"../../../material/pointzone/7point.x");
+	dartBoardPoint[8] = new DartBoard(&g, L"../../../material/pointzone/8point.x");
+	dartBoardPoint[9] = new DartBoard(&g, L"../../../material/pointzone/9point.x");
 	for (int i = 0; i < 10; i++) {
-		dartBoardMaskArray[i]->SetScale(0.8f, 0.8f, 0.8f);
-		dartBoardMaskArray[i]->SetPosition(-6.5f, 0.0f, 0.0f);
+		dartBoardPoint[i]->SetScale(0.8f, 0.8f, 0.8f);
+		dartBoardPoint[i]->SetPosition(-6.5f, 0.0f, 0.0f);
+		g.Register(dartBoardPoint[i]);
 	}
+
+	// ダーツ台の得点の範囲のマスク
+	// DartBoard *dartBoardMaskArray[10];
+	// dartBoardMaskArray[0] = new DartBoard(&g, L"../../../material/mask/0mask.x");
+	// dartBoardMaskArray[1] = new DartBoard(&g, L"../../../material/mask/1mask.x");
+	// dartBoardMaskArray[2] = new DartBoard(&g, L"../../../material/mask/2mask.x");
+	// dartBoardMaskArray[3] = new DartBoard(&g, L"../../../material/mask/3mask.x");
+	// dartBoardMaskArray[4] = new DartBoard(&g, L"../../../material/mask/4mask.x");
+	// dartBoardMaskArray[5] = new DartBoard(&g, L"../../../material/mask/5mask.x");
+	// dartBoardMaskArray[6] = new DartBoard(&g, L"../../../material/mask/6mask.x");
+	// dartBoardMaskArray[7] = new DartBoard(&g, L"../../../material/mask/7mask.x");
+	// dartBoardMaskArray[8] = new DartBoard(&g, L"../../../material/mask/8mask.x");
+	// dartBoardMaskArray[9] = new DartBoard(&g, L"../../../material/mask/9mask.x");
+	// for (int i = 0; i < 10; i++) {
+	// 	dartBoardMaskArray[i]->SetScale(0.8f, 0.8f, 0.8f);
+	// 	dartBoardMaskArray[i]->SetPosition(-6.5f, 0.0f, 0.0f);
+	// }
 	
 	// 点数表示の画像を読み込む
 	Texture *pointArray[10];
@@ -202,6 +221,8 @@ UINT MainLoop(WindowManager *winmgr)
 	// アニメーションの制御部分
 	while (!winmgr->WaitingForTermination()){
 
+		std::cout << "x = " << xDart << " y = " << yDart << " z = " << zDart << std::endl;
+
 		// 3回投げたかどうかを判定する
 		if (dart.getOverlappingCount() < numberOfPlays) {
 		
@@ -251,142 +272,149 @@ UINT MainLoop(WindowManager *winmgr)
 
 			// ダーツの矢とダーツ台が接触している領域のマスク画像を作成
 			for (int i = 0; i < 10; i++) {
-				g.Draw(dartBoardMaskArray[i], hitAreaArray[i]);
+				// g.Draw(dartBoardMaskArray[i], hitAreaArray[i]);
+				g.Draw(dartBoardPoint[i], hitAreaArray[i]);
 			}
 		
 			// ダーツ台を回転させる
 			dartBoard.SetRotationX(0.05f);
 			// mask
 			for (int i = 0; i < 10; i++) {
-				dartBoardMaskArray[i]->SetRotationX(0.05f);
+				// dartBoardMaskArray[i]->SetRotationX(0.05f);
+				dartBoardPoint[i]->SetRotationX(0.05f);
 			}
-		
-			// ダーツが台に当たったかどうかを判定
-			if (dart.whereToHitDartBoard(hitAreaArray[0])
-				|| dart.whereToHitDartBoard(hitAreaArray[1])
-				|| dart.whereToHitDartBoard(hitAreaArray[2])
-				|| dart.whereToHitDartBoard(hitAreaArray[3])
-				|| dart.whereToHitDartBoard(hitAreaArray[4])
-				|| dart.whereToHitDartBoard(hitAreaArray[5])
-				|| dart.whereToHitDartBoard(hitAreaArray[6])
-				|| dart.whereToHitDartBoard(hitAreaArray[7])
-				|| dart.whereToHitDartBoard(hitAreaArray[8])
-				|| dart.whereToHitDartBoard(hitAreaArray[9])) {
+
+			if (xDart < thresholdX) {
+				
+				// ダーツが台に当たったかどうかを判定
+				if (dart.whereToHitDartBoard(hitAreaArray[0])
+					|| dart.whereToHitDartBoard(hitAreaArray[1])
+					|| dart.whereToHitDartBoard(hitAreaArray[2])
+					|| dart.whereToHitDartBoard(hitAreaArray[3])
+					|| dart.whereToHitDartBoard(hitAreaArray[4])
+					|| dart.whereToHitDartBoard(hitAreaArray[5])
+					|| dart.whereToHitDartBoard(hitAreaArray[6])
+					|| dart.whereToHitDartBoard(hitAreaArray[7])
+					|| dart.whereToHitDartBoard(hitAreaArray[8])
+					|| dart.whereToHitDartBoard(hitAreaArray[9])) {
 			
-				// ダーツが当たったフラグを立てる
-				dart.setHitDartBoard(true);
-				dartBoard.setHitDart(true);
+					// ダーツが当たったフラグを立てる
+					dart.setHitDartBoard(true);
+					dartBoard.setHitDart(true);
 
-				if (!dart.getHitOnce()) {
+					if (!dart.getHitOnce()) {
 
-					// 当たった時の座標を取得する
-					dart.GetPosition(&xDart, &yDart, &zDart);
-					dart.setXDart(xDart);
-					dart.setYDart(yDart);
+						// 当たった時の座標を取得する
+						dart.GetPosition(&xDart, &yDart, &zDart);
+						dart.setXDart(xDart);
+						dart.setYDart(yDart);
 
-					// 前回の点数を消す
-					g.Unregister(pointArray[lastPoint]);
-					g.Unregister(totalPointArray[lastTotalPoint]);
+						// 前回の点数を消す
+						g.Unregister(pointArray[lastPoint]);
+						g.Unregister(totalPointArray[lastTotalPoint]);
 				
-					for (int i = 0; i < 10; i++) {
-						// どこにダーツが当たったかを判定する
-						if (dart.whereToHitDartBoard(hitAreaArray[i])) {
-							std::cout << "hit " << i << "point zone" << std::endl;
-							point = i;
+						for (int i = 0; i < 10; i++) {
+							// どこにダーツが当たったかを判定する
+							if (dart.whereToHitDartBoard(hitAreaArray[i])) {
+								std::cout << "hit " << i << "point zone" << std::endl;
+								point = i;
+							}
 						}
-					}
 
-					// 合計ポイントを計算する
-					totalPoint += point;
+						// 合計ポイントを計算する
+						totalPoint += point;
 				
-					// 当たったポイントを退避しておく
-					lastPoint = point;
-					lastTotalPoint = totalPoint;
+						// 当たったポイントを退避しておく
+						lastPoint = point;
+						lastTotalPoint = totalPoint;
 								
-					// 前に当たったポイントの表示から現在のポイント表示に変更する
-					g.Register(pointArray[point]);
-					g.Register(totalPointArray[totalPoint]);
+						// 前に当たったポイントの表示から現在のポイント表示に変更する
+						g.Register(pointArray[point]);
+						g.Register(totalPointArray[totalPoint]);
 				
-					// 1回当たったことを示すフラグをtrueにする
-					dart.setHitOnce(true);
+						// 1回当たったことを示すフラグをtrueにする
+						dart.setHitOnce(true);
+					}
+			
+				} else {
+			
+					// ダーツが当たっていないフラグを立てる
+					dart.setHitDartBoard(false);
+				}
+		
+				// ダーツが台にあたっている時の処理
+				if (dart.getHitDartBoard()) {
+					std::cout << "hit dart board" << std::endl; 
+				} else {
+					std::cout << "not hit dart board" << std::endl;
+				}
+
+			}
+				
+				// ダーツを動かす
+				dart.react(&hitArea_Hand_and_Dart);
+				dart.move();
+
+				// 投げた回数を表示できるようにする
+				if (threwCount < 3) {
+					lastThrewCount = threwCount;
+					threwCount = dart.getThrewCount(); 
+					g.Unregister(threwNumberArray[lastThrewCount]);
+					g.Register(threwNumberArray[threwCount]);
+				}
+
+				std::cout << "Now you get " << point << " Point" << std::endl;
+		
+				// マスクウインドウのダーツの動きもさせる
+				// maskDart.SetPosition(xDart, yDart, zDart);
+		
+				// 身体映像の切り抜きを行う
+				bg_subtract(&mainScreen, &stored, &source, 0x20202020);
+		
+				//for debug(2/2)
+				//debug = hitArea;
+				//arsgd.Draw(&debug);
+
+			} else {
+
+				// GameOver
+				g.Register(&gameover);
+			
+				totalPointArray[totalPoint]->SetPosition(-4.0f, -3.0f, 0.0f);
+				g.Register(totalPointArray[totalPoint]);
+
+				if (keyIn->GetKeyTrig('A')) {
+
+					dart.setOverlappingCount(0);
+					dart.setThrewCount(0);
+					dart.setOverlappingOnce(false);
+					dart.setHitOnce(false);
+					dart.SetPosition(6.0f, 3.0f, 0.0f);
+
+					g.Unregister(&gameover);
+				
+					g.Unregister(totalPointArray[totalPoint]);
+					g.Unregister(pointArray[point]);
+					g.Unregister(threwNumberArray[threwCount]);
+				
+					g.Register(pointArray[0]);
+					g.Register(totalPointArray[0]);
+					g.Register(threwNumberArray[0]);
+								
+					point = 0;
+					totalPoint = 0;
+					threwCount = 0;
+								
+					lastPoint = 0;
+					lastTotalPoint = 0;
+					lastThrewCount = 0;
 				}
 			
-			} else {
-			
-				// ダーツが当たっていないフラグを立てる
-				dart.setHitDartBoard(false);
-			}
-		
-			// ダーツが台にあたっている時の処理
-			if (dart.getHitDartBoard()) {
-				std::cout << "hit dart board" << std::endl; 
-			} else {
-				std::cout << "not hit dart board" << std::endl;
-			}
-				
-			// ダーツを動かす
-			dart.react(&hitArea_Hand_and_Dart);
-			dart.move();
-
-			// 投げた回数を表示できるようにする
-			if (threwCount < 3) {
-				lastThrewCount = threwCount;
-				threwCount = dart.getThrewCount(); 
-				g.Unregister(threwNumberArray[lastThrewCount]);
-				g.Register(threwNumberArray[threwCount]);
-			}
-
-			std::cout << "Now you get " << point << " Point" << std::endl;
-		
-			// マスクウインドウのダーツの動きもさせる
-			// maskDart.SetPosition(xDart, yDart, zDart);
-		
-			// 身体映像の切り抜きを行う
-			bg_subtract(&mainScreen, &stored, &source, 0x20202020);
-		
-			//for debug(2/2)
-			//debug = hitArea;
-			//arsgd.Draw(&debug);
-
-		} else {
-
-			// GameOver
-			g.Register(&gameover);
-			
-			totalPointArray[totalPoint]->SetPosition(-4.0f, -3.0f, 0.0f);
-			g.Register(totalPointArray[totalPoint]);
-
-			if (keyIn->GetKeyTrig('A')) {
-
-				dart.setOverlappingCount(0);
-				dart.setThrewCount(0);
-				dart.setOverlappingOnce(false);
-				dart.setHitOnce(false);
-				dart.SetPosition(6.0f, 3.0f, 0.0f);
-
-				g.Unregister(&gameover);
-				
-				g.Unregister(totalPointArray[totalPoint]);
-				g.Unregister(pointArray[point]);
-				g.Unregister(threwNumberArray[threwCount]);
-				
-				g.Register(pointArray[0]);
-				g.Register(totalPointArray[0]);
-				g.Register(threwNumberArray[0]);
-								
-				point = 0;
-				totalPoint = 0;
-				threwCount = 0;
-								
-				lastPoint = 0;
-				lastTotalPoint = 0;
-				lastThrewCount = 0;
-			}
-			
-			if (keyIn->GetKeyTrig('Q')) break;
+				if (keyIn->GetKeyTrig('Q')) break;
 
 		}
-
+		
+		
 		g.Draw();
 	}
 	
@@ -395,7 +423,7 @@ UINT MainLoop(WindowManager *winmgr)
 	// 動的に確保したメモリを開放する
 	for (int i = 0; i < 10; i++) {
 		delete hitAreaArray[i];
-		delete dartBoardMaskArray[i];
+		delete dartBoardPoint[i];
 		delete pointArray[i];
 	}
 
@@ -530,9 +558,11 @@ inline void Dart::move() {
 	GetARSG()->Convert3Dto2D(&c, GetPosition());
 	float angle = 0;
 
+	// ダーツボードに1回当たったかどうかを判定
 	if (overlappingOnce){
 
 		//枠の反射
+		// ダーツがボードに当たったらx座標を動かさないようにする
 		if (c.x < 200 || c.x > sizex)	{
 			// vx *= -1.0f;
 			vx = 0;
@@ -556,10 +586,10 @@ inline void Dart::move() {
 		vx *= 0.8f;
 		vy *= 0.8f;
 
+		// ダーツのy座標がリスタートすると判定するところまで行っているかどうかを判定する
 		if (yDart > restartDartPosition) {
 			SetPosition(vx, vy, 0.0f, GL_RELATIVE);
-			// SetPosition(cos(angle) - xDart, sin(angle) - yDart, cos(angle))
-				;
+			// SetPosition(cos(angle) - xDart, sin(angle) - yDart, cos(angle));
 			
 		} else {
 			
@@ -577,7 +607,7 @@ inline void Dart::move() {
 				SetPosition(6.0f, 3.0f, 0.0f);
 				overlappingCount++;
 
-				
+				// 投げた回数を増やす
 				if (threwCount < 2) {
 					threwCount++;
 				}
