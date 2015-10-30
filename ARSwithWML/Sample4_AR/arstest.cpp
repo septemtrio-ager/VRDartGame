@@ -27,9 +27,9 @@ void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
 void bg_subtract(Texture* result, Texture* background, Texture* src, DWORD border);
 
 // Aボタンが押された時などで状況をリセットするときに呼び出す
-void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount, Dart *dart);
+void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount, int *gameoverCount, Dart *dart[]);
 // Aボタンが押された時に表示をリセットするときに呼び出す
-void resetDisplay();
+void resetDisplay(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount, ARSG *g, Dart *dart[], Texture *totalPointArray[], Texture *pointArray[], Texture *threwNumberArray[]);
 
 // ウィンドウサイズ
 const unsigned int sizex = 640; 
@@ -223,6 +223,7 @@ UINT MainLoop(WindowManager *winmgr)
 		cout << "Now you threw[" << threwCount << "]dart," << endl;
 		dart[threwCount]->GetPosition(&xDart, &yDart, &zDart);
 		cout << "x = " << xDart << ", y = " << yDart << ", z = " << zDart << endl;
+		cout << "Game Over Count = " << gameoverCount << endl;
 		
 		// 3回投げたかどうか判定する
 		if (gameoverCount < NUMBER_OF_PLAYS) {
@@ -232,8 +233,19 @@ UINT MainLoop(WindowManager *winmgr)
 
 			// Aボタンを押した時の処理
 			if (keyIn->GetKeyTrig('A')){
+				
 				d.GetCamImage(&stored);
-				reset(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, dart[threwCount]);
+
+				// g.Unregister(totalPointArray[totalPoint]);
+				// g.Unregister(pointArray[point]);
+				// g.Unregister(threwNumberArray[threwCount]);
+
+				// g.Register(pointArray[0]);
+				// g.Register(totalPointArray[0]);
+				// g.Register(threwNumberArray[0]);
+				
+				resetDisplay(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, &g, dart, totalPointArray, pointArray, threwNumberArray);
+				reset(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, &gameoverCount, dart);
 			}
 		
 			d.GetCamImage(&source);
@@ -278,7 +290,8 @@ UINT MainLoop(WindowManager *winmgr)
 						dart[threwCount]->setAngle(-atan2(yDart, zDart));
 						
 						// 前回のの得点を消す
-												
+						g.Unregister(pointArray[lastPoint]);
+						g.Unregister(totalPointArray[lastTotalPoint]);
 
 						// ボードのどこにダーツが当たったかを判定する
 						for (int i = 0; i < 10; i++) {
@@ -288,12 +301,27 @@ UINT MainLoop(WindowManager *winmgr)
 							}
 						}
 
+						// 合計ポイントを計算する
+						totalPoint += point;
+
+						// 当たったポイントを退避しておく
+						lastPoint = point;
+						lastTotalPoint = totalPoint;
+
+						// 前に当たったポイントの表示から現在のポイント表示に変更する
+						g.Register(pointArray[point]);
+						g.Register(totalPointArray[totalPoint]);
+						
 						// 一つ前の数値を格納しておく
 						lastThrewCount = threwCount;
 						// 投げた回数を+1する
 						if (threwCount < NUMBER_OF_PLAYS - 1) {
 							threwCount++;	
 						}
+						// 投げた回数を表示させる
+						g.Unregister(threwNumberArray[lastThrewCount]);
+						g.Register(threwNumberArray[threwCount]);
+						
 						// ゲーム終了までのカウントを+1する
 						gameoverCount++;
 						
@@ -327,7 +355,7 @@ UINT MainLoop(WindowManager *winmgr)
 				dart[2]->react(&hitArea_Hand_and_Dart);
 				dart[2]->move();
 			}
-									
+
 			// 身体映像の切り抜きを行う
 			bg_subtract(&mainScreen, &stored, &source, 0x20202020);
 			
@@ -337,10 +365,16 @@ UINT MainLoop(WindowManager *winmgr)
 			
 		} else {// 3回投げた場合の処理
 
+			// Game Over画面を表示させる
 			g.Register(&gameover);
 
 			if (keyIn->GetKeyTrig('A')) {
-				reset(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, dart[threwCount]);
+
+				g.Unregister(&gameover);
+				
+				resetDisplay(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, &g, dart, totalPointArray, pointArray, threwNumberArray);
+				
+				reset(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, &gameoverCount, dart);
 			}
 
 			if (keyIn->GetKeyTrig('Q')) {
@@ -371,23 +405,42 @@ UINT MainLoop(WindowManager *winmgr)
 	return 0;
 }
 
-void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount, Dart *dart) {
+void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount, int *gameoverCount, Dart *dart[]) {
 	
 	cout << "Reset!" << endl;
 
-	point = 0;
-	totalPoint = 0;
-	threwCount = 0;
-	lastPoint = 0;
-	lastTotalPoint = 0;
-	lastThrewCount = 0;
+	for (int i = 0; i < NUMBER_OF_PLAYS; i++) {
+		dart[i]->setHitHand(false);
+		dart[i]->SetPosition(START_X_POINT, START_Y_POINT, START_Z_POINT);
+	}
 	
-	dart->setHitHand(false);
-	dart->SetPosition(START_X_POINT, START_Y_POINT, START_Z_POINT);
+	*point = 0;
+	*totalPoint = 0;
+	*threwCount = 0;
+
+	*gameoverCount = 0;
+	
+	*lastPoint = 0;
+	*lastTotalPoint = 0;
+	*lastThrewCount = 0;
+	
+	
 }
 
-void resetDisplay() {
+void resetDisplay(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount, ARSG *g, Dart *dart[], Texture *totalPointArray[], Texture *pointArray[], Texture *threwNumberArray[]) {
+	
 	cout << "reset display" << endl;
+
+	g->Unregister(dart[1]);
+	g->Unregister(dart[2]);
+	
+	g->Unregister(totalPointArray[*totalPoint]);
+	g->Unregister(pointArray[*point]);
+	g->Unregister(threwNumberArray[*threwCount]);
+
+	g->Register(pointArray[0]);
+	g->Register(totalPointArray[0]);
+	g->Register(threwNumberArray[0]);
 }
 
 inline void Dart::react(Texture* _hitArea)
