@@ -13,6 +13,8 @@
 #include "../include/ars.h"
 #include "arstest.h"
 
+#include <iostream>
+using namespace std;
 
 //-----------------------------------------------------------------------------
 // Name: WinMain()
