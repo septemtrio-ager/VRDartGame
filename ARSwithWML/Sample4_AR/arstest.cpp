@@ -21,6 +21,7 @@ using namespace std;
 // Desc: The application's entry point
 //-----------------------------------------------------------------------------
 
+// develop branch file
 
 void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
 void bg_subtract(Texture* result, Texture* bg, Texture* src, DWORD border);

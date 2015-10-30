@@ -8,15 +8,12 @@
 #pragma comment(lib, "../lib/WMLd.lib")
 #endif
 
-
-
 #define _CRT_SECURE_NO_WARNINGS
 
 #define CLASSNAME "ARSTEST"
 #define APPNAME "ARSTEST"
 
-
-
+// develop branch file
 
 class Touchable : public Mesh{
 // private:
