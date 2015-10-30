@@ -96,6 +96,13 @@ Dart(ARSG* _g, wchar_t fln[]):Touchable(_g, fln),hitXPoint(0.0f), hitYPoint(0.0f
 	void setHitDartBoard(bool hdb) {
 		hitDartBoard = hdb;
 	}
+
+	float getAngle() {
+		return angle;
+	}
+	void setAngle(float a) {
+		angle = a;
+	}
 		
 };
 

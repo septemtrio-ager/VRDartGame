@@ -60,7 +60,7 @@ const float ROTATION = 0.05f;
 
 UINT MainLoop(WindowManager *winmgr)
 {
-	//ShowDebugWindow();
+	ShowDebugWindow();
 
 	//for debug(1/2)
 	//Window window2;
@@ -79,6 +79,8 @@ UINT MainLoop(WindowManager *winmgr)
 	int lastPoint = 0;
 	int lastTotalPoint = 0;
 	int lastThrewCount = 0;
+
+	int gameoverCount = 0;
 	
 	Window window;
 	winmgr->RegisterWindow(&window);
@@ -223,7 +225,7 @@ UINT MainLoop(WindowManager *winmgr)
 		cout << "x = " << xDart << ", y = " << yDart << ", z = " << zDart << endl;
 		
 		// 3回投げたかどうか判定する
-		if (threwCount < NUMBER_OF_PLAYS) {
+		if (gameoverCount < NUMBER_OF_PLAYS) {
 			
 			// 投げるダーツを描画するように登録
 			g.Register(dart[threwCount]);
@@ -240,16 +242,92 @@ UINT MainLoop(WindowManager *winmgr)
 			
 			// ダーツと手が接触している領域のマスク画像を作成
 			subtract_maskf(&hitArea_Hand_and_Dart,&stored,&source,0x20202020);
-
+			// ダーツとボードが接触している領域のマスク画像を作成
+			for (int i = 0; i < 10; i++) {
+				g.Draw(dartBoardPoint[i], hitAreaArray[i]);
+			}
+			
 			// ダーツボードを回転させる
 			for (int i = 0; i < 10; i++) {
 				dartBoardPoint[i]->SetRotationX(ROTATION);
 			}
+			
+			// START_JUDGEMENT_X_POINTの値までは当たり判定をしないようにしている
+			if (xDart < START_JUDGEMENT_X_POINT) {
+
+				// ダーツがボードに当たったかどうかを判定する
+				// ダーツがボードに当たっている時の処理
+				if (dart[threwCount]->whereToHitDartBoard(hitAreaArray[0])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[1])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[2])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[3])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[4])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[5])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[6])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[7])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[8])
+					|| dart[threwCount]->whereToHitDartBoard(hitAreaArray[9])) {
+
+					// ボードに当たったはじめの1回だけ処理される部分
+					if (!dart[threwCount]->getHitDartBoard()) {
+
+						// 当たった時の座標を取得する
+						dart[threwCount]->GetPosition(&xDart, &yDart, &zDart);
+						dart[threwCount]->setHitPoint(xDart, yDart, zDart);
+						// 当たった時の初期回転角を計算する
+						dart[threwCount]->setAngle(-atan2(yDart, zDart));
+						
+						// 前回のの得点を消す
+												
+
+						// ボードのどこにダーツが当たったかを判定する
+						for (int i = 0; i < 10; i++) {
+							if (dart[threwCount]->whereToHitDartBoard(hitAreaArray[i])) {
+								cout << "Hit " << i << "point zone" << endl;
+								point = i;
+							}
+						}
+
+						// 一つ前の数値を格納しておく
+						lastThrewCount = threwCount;
+						// 投げた回数を+1する
+						if (threwCount < NUMBER_OF_PLAYS - 1) {
+							threwCount++;	
+						}
+						// ゲーム終了までのカウントを+1する
+						gameoverCount++;
+						
+
+					}// ボードに当たったはじめの1回だけ処理される部分終了
+					
+					// ダーツがボードに当たったフラグを立てる
+					dart[lastThrewCount]->setHitDartBoard(true);
+					
+				} else {// ダーツがボードに当たっていない時の処理
+					// ダーツがボードに当たっていないフラグを立てる
+					dart[threwCount]->setHitDartBoard(false);
+				}
+				
+			}// START_JUDGEMENT_X_POINTのif文終了
 
 			// ダーツを動かす
-			dart[threwCount]->react(&hitArea_Hand_and_Dart);
-			dart[threwCount]->move();
-
+			if (threwCount == 0) {
+				dart[0]->react(&hitArea_Hand_and_Dart);
+				dart[0]->move();
+			} else if (threwCount == 1) {
+				dart[0]->react(&hitArea_Hand_and_Dart);
+				dart[0]->move();
+				dart[1]->react(&hitArea_Hand_and_Dart);
+				dart[1]->move();
+			} else if (threwCount == 2) {
+				dart[0]->react(&hitArea_Hand_and_Dart);
+				dart[0]->move();
+				dart[1]->react(&hitArea_Hand_and_Dart);
+				dart[1]->move();
+				dart[2]->react(&hitArea_Hand_and_Dart);
+				dart[2]->move();
+			}
+									
 			// 身体映像の切り抜きを行う
 			bg_subtract(&mainScreen, &stored, &source, 0x20202020);
 			
@@ -258,6 +336,16 @@ UINT MainLoop(WindowManager *winmgr)
 			//arsgd.Draw(&debug);
 			
 		} else {// 3回投げた場合の処理
+
+			g.Register(&gameover);
+
+			if (keyIn->GetKeyTrig('A')) {
+				reset(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, dart[threwCount]);
+			}
+
+			if (keyIn->GetKeyTrig('Q')) {
+				break;
+			}
 			
 		}// 3回投げた場合の処理終了
 
@@ -336,13 +424,19 @@ inline void Dart::move()
 {
 	VECTOR2D c;
 	GetARSG()->Convert3Dto2D(&c, GetPosition());
-
+	float r;
+	
 	// 手がダーツに当たったらダーツを動かす
 	if (hitHand) {
 		
 		//枠の反射
-		if (c.x < 0 || c.x > sizex)	vx *= -1.0f;
-		if (c.y > sizey-50 && vy<0)	vy *= -1.0f;
+		if (c.x < 200 || c.x > sizex){
+			// vx *= -1.0f;
+			vx = 0;
+		}
+		if (c.y > sizey-50 && vy<0){
+			vy *= -1.0f;
+		}
 
 		//自由落下または停止
 		if (c.y > sizey-50 && vy<0.03f) 
@@ -354,7 +448,25 @@ inline void Dart::move()
 		vx *= 0.8f;
 		vy *= 0.8f;
 
-		SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+		if (hitDartBoard) {
+
+			r = sqrt(hitYPoint * hitYPoint + START_Z_POINT *START_Z_POINT);
+			
+			SetPosition(-6.5f, r * (-sin(angle)), r * cos(angle) + START_Z_POINT);
+
+			angle += 0.05f;
+			
+			// // angleの値を増やす
+			// // 2piより大きくなったら0に戻す
+			// if (angle > 2 * PI) {
+			// 	angle = 0;
+			// } else {
+			// 	angle += 0.05f;
+			// }
+			
+		} else {
+			SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+		}
 		
 	} else {// 手がダーツに当たっていない場合は動かさない
 
