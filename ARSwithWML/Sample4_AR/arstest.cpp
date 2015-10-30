@@ -27,8 +27,8 @@ void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
 void bg_subtract(Texture* result, Texture* background, Texture* src, DWORD border);
 
 // Aボタンが押された時などで状況をリセットするときに呼び出す
-void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount);
- // Aボタンが押された時に表示をリセットするときに呼び出す
+void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount, Dart *dart);
+// Aボタンが押された時に表示をリセットするときに呼び出す
 void resetDisplay();
 
 // ウィンドウサイズ
@@ -55,6 +55,8 @@ const float START_JUDGEMENT_X_POINT = -4.0f;
 const float DART_SCALE = 2.3f;
 // ダーツボードのスケール
 const float DARTBOARD_SCALE = 0.8f;
+// ダーツボードの回転量
+const float ROTATION = 0.05f;
 
 UINT MainLoop(WindowManager *winmgr)
 {
@@ -68,6 +70,8 @@ UINT MainLoop(WindowManager *winmgr)
 	//Texture debug(&arsgd, sizex, sizey);
 	//debug.SetDrawMode(true);
 
+	float xDart = 0, yDart = 0, zDart = 0;
+	
 	int point = 0;
 	int totalPoint = 0;
 	int threwCount = 0;
@@ -213,29 +217,53 @@ UINT MainLoop(WindowManager *winmgr)
 
 	// アニメーション制御部分
 	while (!winmgr->WaitingForTermination()){
-		
-		// Aボタンを押した時の処理
-		if (keyIn->GetKeyTrig('A')){
-			d.GetCamImage(&stored);
-		}
-		
-		d.GetCamImage(&source);
-		
-		if (keyIn->GetKeyTrig('Q')) break;
-			
-		// ダーツと手が接触している領域のマスク画像を作成
-		subtract_maskf(&hitArea_Hand_and_Dart,&stored,&source,0x20202020);	
 
-		// 身体映像の切り抜きを行う
-		bg_subtract(&mainScreen, &stored, &source, 0x20202020);
+		cout << "Now you threw[" << threwCount << "]dart," << endl;
+		dart[threwCount]->GetPosition(&xDart, &yDart, &zDart);
+		cout << "x = " << xDart << ", y = " << yDart << ", z = " << zDart << endl;
 		
-		//for debug(2/2)
-		//debug = hitArea;
-		//arsgd.Draw(&debug);
+		// 3回投げたかどうか判定する
+		if (threwCount < NUMBER_OF_PLAYS) {
+			
+			// 投げるダーツを描画するように登録
+			g.Register(dart[threwCount]);
+
+			// Aボタンを押した時の処理
+			if (keyIn->GetKeyTrig('A')){
+				d.GetCamImage(&stored);
+				reset(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, dart[threwCount]);
+			}
 		
+			d.GetCamImage(&source);
+		
+			if (keyIn->GetKeyTrig('Q')) break;
+			
+			// ダーツと手が接触している領域のマスク画像を作成
+			subtract_maskf(&hitArea_Hand_and_Dart,&stored,&source,0x20202020);
+
+			// ダーツボードを回転させる
+			for (int i = 0; i < 10; i++) {
+				dartBoardPoint[i]->SetRotationX(ROTATION);
+			}
+
+			// ダーツを動かす
+			dart[threwCount]->react(&hitArea_Hand_and_Dart);
+			dart[threwCount]->move();
+
+			// 身体映像の切り抜きを行う
+			bg_subtract(&mainScreen, &stored, &source, 0x20202020);
+			
+			//for debug(2/2)
+			//debug = hitArea;
+			//arsgd.Draw(&debug);
+			
+		} else {// 3回投げた場合の処理
+			
+		}// 3回投げた場合の処理終了
+
 		g.Draw();
 		
-	}
+	}// アニメーション制御部分終了
 	
 	// 動的に確保したメモリを解放する
 	for (int i = 0; i < 10; i++) {
@@ -255,7 +283,7 @@ UINT MainLoop(WindowManager *winmgr)
 	return 0;
 }
 
-void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount) {
+void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *lastTotalPoint, int *lastThrewCount, Dart *dart) {
 	
 	cout << "Reset!" << endl;
 
@@ -265,6 +293,9 @@ void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *la
 	lastPoint = 0;
 	lastTotalPoint = 0;
 	lastThrewCount = 0;
+	
+	dart->setHitHand(false);
+	dart->SetPosition(START_X_POINT, START_Y_POINT, START_Z_POINT);
 }
 
 void resetDisplay() {
@@ -276,6 +307,10 @@ inline void Dart::react(Texture* _hitArea)
 	int gx,gy;
 	bool overlapping = get_overlapping_center(_hitArea, &gx, &gy,100);
 
+	if (overlapping) {
+		hitHand = true;
+	}
+	
 	VECTOR2D c;		
 	GetARSG()->Convert3Dto2D(&c, GetPosition());
 
@@ -301,22 +336,32 @@ inline void Dart::move()
 {
 	VECTOR2D c;
 	GetARSG()->Convert3Dto2D(&c, GetPosition());
+
+	// 手がダーツに当たったらダーツを動かす
+	if (hitHand) {
 		
-	//枠の反射
-	if (c.x < 0 || c.x > sizex)	vx *= -1.0f;
-	if (c.y > sizey-50 && vy<0)	vy *= -1.0f;
+		//枠の反射
+		if (c.x < 0 || c.x > sizex)	vx *= -1.0f;
+		if (c.y > sizey-50 && vy<0)	vy *= -1.0f;
 
-	//自由落下または停止
-	if (c.y > sizey-50 && vy<0.03f) 
-		vy = 0;
-	else
-		vy -= 0.03f;
+		//自由落下または停止
+		if (c.y > sizey-50 && vy<0.03f) 
+			vy = 0;
+		else
+			vy -= 0.03f;
 
-	//空気抵抗
-	vx *= 0.8f;
-	vy *= 0.8f;
+		//空気抵抗
+		vx *= 0.8f;
+		vy *= 0.8f;
 
-	SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+		SetPosition(vx, vy, 0.0f, GL_RELATIVE);
+		
+	} else {// 手がダーツに当たっていない場合は動かさない
+
+		SetPosition(START_X_POINT, START_Y_POINT, START_Z_POINT);
+	}
+	
+	
 }
 
 inline bool Dart::whereToHitDartBoard(Texture *hitAreaMask) {
