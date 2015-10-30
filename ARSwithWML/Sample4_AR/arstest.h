@@ -18,7 +18,7 @@
 // new design branch
 
 class Touchable : public Mesh{
-private:
+protected:
    float vx,vy;	
    bool get_overlapping_center(Texture* hitArea, int *gx, int *gy, unsigned int threshold);
    void state_action(bool condition);
@@ -32,4 +32,78 @@ public:
    void move(void);
    
 
+};
+
+class Dart:public Touchable {
+protected:
+	// ダーツボードに当たった時の座標を格納する
+	float hitXPoint;
+	float hitYPoint;
+	float hitZPoint;
+	// 手に当たったかどうかを格納する
+	bool hitHand;
+	// ボードに当たったかどうかを格納する
+	bool hitDartBoard;
+	// ダーツを回転させるときの回転角
+	float angle;
+
+public:
+	
+Dart(ARSG* _g, wchar_t fln[]):Touchable(_g, fln),hitXPoint(0.0f), hitYPoint(0.0f), hitZPoint(0.0f),
+		hitHand(false), hitDartBoard(false), angle(0.0f){}
+
+	void react(Texture *hitArea);
+	void move(void);
+	bool whereToHitDartBoard(Texture *hitAreaMask);
+
+	float getHitXPoint() {
+		return hitXPoint;
+	}
+	void setHitXPoint(float hxp) {
+		hitXPoint = hxp;
+	}
+
+	float getHitYPoint() {
+		return hitYPoint;
+	}
+	void setHitYPoint(float hyp) {
+		hitYPoint = hyp;
+	}
+
+	float getHitZPoint() {
+		return hitZPoint;
+	}
+	void setHitZPoint(float hzp) {
+		hitZPoint = hzp;
+	}
+
+	void setHitPoint(float hxp, float hyp, float hzp) {
+		hitXPoint = hxp;
+		hitYPoint = hyp;
+		hitZPoint = hzp;
+	}
+
+	bool getHitHand() {
+		return hitHand;
+	}
+	void setHitHand(bool hh) {
+		hitHand = hh;
+	}
+
+	bool getHitDartBoard() {
+		return hitDartBoard;
+	}
+	void setHitDartBoard(bool hdb) {
+		hitDartBoard = hdb;
+	}
+		
+};
+
+class DartBoard:public Touchable {
+protected:
+
+public:
+DartBoard(ARSG* _g, wchar_t fln[]) : Touchable(_g, fln) {}
+	/* void react(Texture* hitArea); */
+	/* void move(void); */
 };
