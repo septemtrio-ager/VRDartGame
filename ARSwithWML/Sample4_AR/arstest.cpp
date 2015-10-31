@@ -353,21 +353,9 @@ UINT MainLoop(WindowManager *winmgr)
 			g.Register(threwNumberArray[threwCount]);
 			
 			// ダーツを動かす
-			if (threwCount == 0) {
-				dart[0]->react(&hitArea_Hand_and_Dart);
-				dart[0]->move();
-			} else if (threwCount == 1) {
-				dart[0]->react(&hitArea_Hand_and_Dart);
-				dart[0]->move();
-				dart[1]->react(&hitArea_Hand_and_Dart);
-				dart[1]->move();
-			} else if (threwCount == 2) {
-				dart[0]->react(&hitArea_Hand_and_Dart);
-				dart[0]->move();
-				dart[1]->react(&hitArea_Hand_and_Dart);
-				dart[1]->move();
-				dart[2]->react(&hitArea_Hand_and_Dart);
-				dart[2]->move();
+			for (int i = 0; i <= threwCount; i++) {
+				dart[i]->react(&hitArea_Hand_and_Dart);
+				dart[i]->move();
 			}
 
 			// 身体映像の切り抜きを行う
