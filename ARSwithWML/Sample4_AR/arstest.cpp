@@ -71,7 +71,7 @@ const float thresholdX = -4.0f;
 
 UINT MainLoop(WindowManager *winmgr)
 {
-	ShowDebugWindow();
+	// ShowDebugWindow();
 
 	//for debug(1/2)
 	//Window window2;
