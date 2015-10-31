@@ -21,7 +21,7 @@ using namespace std;
 // Desc: The application's entry point
 //-----------------------------------------------------------------------------
 
-// new design branch
+// develop branch
 
 void subtract_maskf(Texture* result, Texture* bg, Texture* src, DWORD border);
 void bg_subtract(Texture* result, Texture* background, Texture* src, DWORD border);
@@ -60,12 +60,16 @@ const float DART_ROTATION = PI;// 半回転したら次のダーツをセットするようにする
 
 // ダーツボードの回転量
 const float DARTBOARD_ROTATION = 0.05f;
+// ダーツボードの得点の種類
+const int DARTBOARD_POINT = 10;
 
- 
+// 最大の合計得点
+// 0からなので最大の合計得点+1の数になる 
+const int MAX_TOTAL_POINT = 28;
 
 UINT MainLoop(WindowManager *winmgr)
 {
-	ShowDebugWindow();
+	// ShowDebugWindow();
 
 	//for debug(1/2)
 	//Window window2;
@@ -75,16 +79,20 @@ UINT MainLoop(WindowManager *winmgr)
 	//Texture debug(&arsgd, sizex, sizey);
 	//debug.SetDrawMode(true);
 
+	// ダーツの現在座標を格納する
 	float xDart = 0, yDart = 0, zDart = 0;
 	
+	// 現在の得点、合計得点、投げた回数を格納する
 	int point = 0;
 	int totalPoint = 0;
 	int threwCount = 0;
 
+	// 前回までの得点などを格納する
 	int lastPoint = 0;
 	int lastTotalPoint = 0;
 	int lastThrewCount = 0;
 
+	// ゲームオーバーまでをカウントする
 	int gameoverCount = 0;
 	
 	Window window;
@@ -115,8 +123,8 @@ UINT MainLoop(WindowManager *winmgr)
 	// 手とダーツが接触している領域を格納する
 	Texture hitArea_Hand_and_Dart(&g,sizex,sizey);
 	// ダーツとボードが接触している領域を格納する
-	Texture *hitAreaArray[10];
-	for (int i = 0; i < 10; i++) {
+	Texture *hitAreaArray[DARTBOARD_POINT];
+	for (int i = 0; i < DARTBOARD_POINT; i++) {
 		hitAreaArray[i] = new Texture(&g, sizex, sizey);
 		hitAreaArray[i]->SetDrawMode(TRUE);
 	}
@@ -135,7 +143,7 @@ UINT MainLoop(WindowManager *winmgr)
 	}
 	
 	// ダーツボード
-	DartBoard *dartBoardPoint[10];
+	DartBoard *dartBoardPoint[DARTBOARD_POINT];
 	dartBoardPoint[0] = new DartBoard(&g, L"../../../material/pointzone/0point.x");
 	dartBoardPoint[1] = new DartBoard(&g, L"../../../material/pointzone/1point.x");
 	dartBoardPoint[2] = new DartBoard(&g, L"../../../material/pointzone/2point.x");
@@ -146,14 +154,14 @@ UINT MainLoop(WindowManager *winmgr)
 	dartBoardPoint[7] = new DartBoard(&g, L"../../../material/pointzone/7point.x");
 	dartBoardPoint[8] = new DartBoard(&g, L"../../../material/pointzone/8point.x");
 	dartBoardPoint[9] = new DartBoard(&g, L"../../../material/pointzone/9point.x");
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < DARTBOARD_POINT; i++) {
 		dartBoardPoint[i]->SetScale(0.8f, 0.8f, 0.8f);
 		dartBoardPoint[i]->SetPosition(-6.5f, 0.0f, 0.0f);
 		g.Register(dartBoardPoint[i]);
 	}
 
 	// 点数表示の画像を読み込む
-	Texture *pointArray[10];
+	Texture *pointArray[DARTBOARD_POINT];
 	pointArray[0] = new Texture(&g, L"../../../material/point/0.png");
 	pointArray[1] = new Texture(&g, L"../../../material/point/1.png");
 	pointArray[2] = new Texture(&g, L"../../../material/point/2.png");
@@ -164,13 +172,13 @@ UINT MainLoop(WindowManager *winmgr)
 	pointArray[7] = new Texture(&g, L"../../../material/point/7.png");
 	pointArray[8] = new Texture(&g, L"../../../material/point/8.png");
 	pointArray[9] = new Texture(&g, L"../../../material/point/9.png");
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < DARTBOARD_POINT; i++) {
 		pointArray[i]->SetDrawMode(TRUE);
 	}
 	g.Register(pointArray[0]);
 
 	// 合計得点表示の画像を読み込む
-	Texture *totalPointArray[28];
+	Texture *totalPointArray[MAX_TOTAL_POINT];
 	totalPointArray[0] = new Texture(&g, L"../../../material/totalpoint/0.png");
 	totalPointArray[1] = new Texture(&g, L"../../../material/totalpoint/1.png");
 	totalPointArray[2] = new Texture(&g, L"../../../material/totalpoint/2.png");
@@ -199,7 +207,7 @@ UINT MainLoop(WindowManager *winmgr)
 	totalPointArray[25] = new Texture(&g, L"../../../material/totalpoint/25.png");
 	totalPointArray[26] = new Texture(&g, L"../../../material/totalpoint/26.png");
 	totalPointArray[27] = new Texture(&g, L"../../../material/totalpoint/27.png");
-	for (int i = 0; i < 28; i++) {
+	for (int i = 0; i < MAX_TOTAL_POINT; i++) {
 		totalPointArray[i]->SetDrawMode(TRUE);
 	}
 	g.Register(totalPointArray[0]);
@@ -209,7 +217,7 @@ UINT MainLoop(WindowManager *winmgr)
 	threwNumberArray[0] = new Texture(&g, L"../../../material/threw/1.png");
 	threwNumberArray[1] = new Texture(&g, L"../../../material/threw/2.png");
 	threwNumberArray[2] = new Texture(&g, L"../../../material/threw/3.png");
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < NUMBER_OF_PLAYS; i++) {
 		threwNumberArray[i]->SetDrawMode(TRUE);
 	}
 	g.Register(threwNumberArray[0]);
@@ -253,12 +261,12 @@ UINT MainLoop(WindowManager *winmgr)
 			// ダーツと手が接触している領域のマスク画像を作成
 			subtract_maskf(&hitArea_Hand_and_Dart,&stored,&source,0x20202020);
 			// ダーツとボードが接触している領域のマスク画像を作成
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < DARTBOARD_POINT; i++) {
 				g.Draw(dartBoardPoint[i], hitAreaArray[i]);
 			}
 			
 			// ダーツボードを回転させる
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < DARTBOARD_POINT; i++) {
 				dartBoardPoint[i]->SetRotationX(DARTBOARD_ROTATION);
 			}
 			
@@ -294,7 +302,7 @@ UINT MainLoop(WindowManager *winmgr)
 						g.Unregister(totalPointArray[lastTotalPoint]);
 
 						// ボードのどこにダーツが当たったかを判定する
-						for (int i = 0; i < 10; i++) {
+						for (int i = 0; i < DARTBOARD_POINT; i++) {
 							if (dart[threwCount]->whereToHitDartBoard(hitAreaArray[i])) {
 								cout << "Hit " << i << "point zone" << endl;
 								point = i;
@@ -326,6 +334,8 @@ UINT MainLoop(WindowManager *winmgr)
 
 			// 一つ前の数値を格納しておく
 			lastThrewCount = threwCount;
+			
+			// DART_ROTATION分だけ回転したら判定する
 			if (dart[threwCount]->calcDeltaAngle() > DART_ROTATION) {
 
 				// ゲーム終了までのカウントを+1する
@@ -390,7 +400,7 @@ UINT MainLoop(WindowManager *winmgr)
 	}// アニメーション制御部分終了
 	
 	// 動的に確保したメモリを解放する
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < DARTBOARD_POINT; i++) {
 		delete hitAreaArray[i];
 		delete dartBoardPoint[i];
 		delete pointArray[i]; 
@@ -399,7 +409,7 @@ UINT MainLoop(WindowManager *winmgr)
 		delete dart[i];
 		delete threwNumberArray[i]; 
 	}
-	for (int i = 0; i < 28; i++) {
+	for (int i = 0; i < MAX_TOTAL_POINT; i++) {
 		delete totalPointArray[i];
 	}
 	
