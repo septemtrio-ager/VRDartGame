@@ -46,6 +46,8 @@ protected:
 	bool hitDartBoard;
 	// ダーツを回転させるときの回転角
 	float angle;
+	float beforeAngle;
+	float afterAngle;
 
 public:
 	
@@ -102,6 +104,24 @@ Dart(ARSG* _g, wchar_t fln[]):Touchable(_g, fln),hitXPoint(0.0f), hitYPoint(0.0f
 	}
 	void setAngle(float a) {
 		angle = a;
+	}
+
+	float getBeforeAngle() {
+		return beforeAngle;
+	}
+	void setBeforeAngle(float ba) {
+		beforeAngle = ba;
+	}
+
+	float getAfterAngle() {
+		return afterAngle;
+	}
+	void setAfterAngle(float aa) {
+		afterAngle = aa;
+	}
+
+	float calcDeltaAngle() {
+		return (angle - beforeAngle);
 	}
 		
 };

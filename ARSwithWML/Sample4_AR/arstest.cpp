@@ -55,8 +55,13 @@ const float START_JUDGEMENT_X_POINT = -4.0f;
 const float DART_SCALE = 2.3f;
 // ダーツボードのスケール
 const float DARTBOARD_SCALE = 0.8f;
+// 次のダーツがセットされるまでのダーツの回転量
+const float DART_ROTATION = PI;// 半回転したら次のダーツをセットするようにする
+
 // ダーツボードの回転量
-const float ROTATION = 0.05f;
+const float DARTBOARD_ROTATION = 0.05f;
+
+ 
 
 UINT MainLoop(WindowManager *winmgr)
 {
@@ -224,6 +229,7 @@ UINT MainLoop(WindowManager *winmgr)
 		dart[threwCount]->GetPosition(&xDart, &yDart, &zDart);
 		cout << "x = " << xDart << ", y = " << yDart << ", z = " << zDart << endl;
 		cout << "Game Over Count = " << gameoverCount << endl;
+		cout << "Angle = " << dart[0]->getAngle() << endl;
 		
 		// 3回投げたかどうか判定する
 		if (gameoverCount < NUMBER_OF_PLAYS) {
@@ -235,14 +241,6 @@ UINT MainLoop(WindowManager *winmgr)
 			if (keyIn->GetKeyTrig('A')){
 				
 				d.GetCamImage(&stored);
-
-				// g.Unregister(totalPointArray[totalPoint]);
-				// g.Unregister(pointArray[point]);
-				// g.Unregister(threwNumberArray[threwCount]);
-
-				// g.Register(pointArray[0]);
-				// g.Register(totalPointArray[0]);
-				// g.Register(threwNumberArray[0]);
 				
 				resetDisplay(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, &g, dart, totalPointArray, pointArray, threwNumberArray);
 				reset(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, &gameoverCount, dart);
@@ -261,11 +259,12 @@ UINT MainLoop(WindowManager *winmgr)
 			
 			// ダーツボードを回転させる
 			for (int i = 0; i < 10; i++) {
-				dartBoardPoint[i]->SetRotationX(ROTATION);
+				dartBoardPoint[i]->SetRotationX(DARTBOARD_ROTATION);
 			}
 			
 			// START_JUDGEMENT_X_POINTの値までは当たり判定をしないようにしている
-			if (xDart < START_JUDGEMENT_X_POINT) {
+			// ダーツがボードに当たっている場合は判定しないようにした
+			if (xDart < START_JUDGEMENT_X_POINT && !dart[threwCount]->getHitDartBoard()) {
 
 				// ダーツがボードに当たったかどうかを判定する
 				// ダーツがボードに当たっている時の処理
@@ -288,6 +287,7 @@ UINT MainLoop(WindowManager *winmgr)
 						dart[threwCount]->setHitPoint(xDart, yDart, zDart);
 						// 当たった時の初期回転角を計算する
 						dart[threwCount]->setAngle(-atan2(yDart, zDart));
+						dart[threwCount]->setBeforeAngle(-atan2(yDart, zDart));
 						
 						// 前回のの得点を消す
 						g.Unregister(pointArray[lastPoint]);
@@ -311,20 +311,6 @@ UINT MainLoop(WindowManager *winmgr)
 						// 前に当たったポイントの表示から現在のポイント表示に変更する
 						g.Register(pointArray[point]);
 						g.Register(totalPointArray[totalPoint]);
-						
-						// 一つ前の数値を格納しておく
-						lastThrewCount = threwCount;
-						// 投げた回数を+1する
-						if (threwCount < NUMBER_OF_PLAYS - 1) {
-							threwCount++;	
-						}
-						// 投げた回数を表示させる
-						g.Unregister(threwNumberArray[lastThrewCount]);
-						g.Register(threwNumberArray[threwCount]);
-						
-						// ゲーム終了までのカウントを+1する
-						gameoverCount++;
-						
 
 					}// ボードに当たったはじめの1回だけ処理される部分終了
 					
@@ -338,6 +324,22 @@ UINT MainLoop(WindowManager *winmgr)
 				
 			}// START_JUDGEMENT_X_POINTのif文終了
 
+			// 一つ前の数値を格納しておく
+			lastThrewCount = threwCount;
+			if (dart[threwCount]->calcDeltaAngle() > DART_ROTATION) {
+
+				// ゲーム終了までのカウントを+1する
+				gameoverCount++;
+				
+				if (threwCount < NUMBER_OF_PLAYS - 1) {
+					// 投げた回数を+1する
+					threwCount++;	
+				}
+			}
+			// 投げた回数を表示させる
+			g.Unregister(threwNumberArray[lastThrewCount]);
+			g.Register(threwNumberArray[threwCount]);
+			
 			// ダーツを動かす
 			if (threwCount == 0) {
 				dart[0]->react(&hitArea_Hand_and_Dart);
@@ -368,12 +370,12 @@ UINT MainLoop(WindowManager *winmgr)
 			// Game Over画面を表示させる
 			g.Register(&gameover);
 
+			// Aボタンを押した時の処理
 			if (keyIn->GetKeyTrig('A')) {
 
 				g.Unregister(&gameover);
 				
 				resetDisplay(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, &g, dart, totalPointArray, pointArray, threwNumberArray);
-				
 				reset(&point, &totalPoint, &threwCount, &lastPoint, &lastTotalPoint, &lastThrewCount, &gameoverCount, dart);
 			}
 
@@ -383,7 +385,7 @@ UINT MainLoop(WindowManager *winmgr)
 			
 		}// 3回投げた場合の処理終了
 
-		g.Draw();
+		g.Draw();// 画面を描画する
 		
 	}// アニメーション制御部分終了
 	
@@ -409,11 +411,16 @@ void reset(int *point, int *totalPoint, int *threwCount, int *lastPoint, int *la
 	
 	cout << "Reset!" << endl;
 
+	// それぞれのダーツの情報を初期化する
 	for (int i = 0; i < NUMBER_OF_PLAYS; i++) {
 		dart[i]->setHitHand(false);
+		dart[i]->setHitDartBoard(false);
+		dart[i]->setHitPoint(0.0f, 0.0f, 0.0f);
+		dart[i]->setAngle(0.0f);
 		dart[i]->SetPosition(START_X_POINT, START_Y_POINT, START_Z_POINT);
 	}
 	
+	// それぞれの制御変数を初期化する
 	*point = 0;
 	*totalPoint = 0;
 	*threwCount = 0;
@@ -431,13 +438,16 @@ void resetDisplay(int *point, int *totalPoint, int *threwCount, int *lastPoint, 
 	
 	cout << "reset display" << endl;
 
+	// 投げたダーツを非表示にする
 	g->Unregister(dart[1]);
 	g->Unregister(dart[2]);
 	
+	// 今まで表示していた得点表示を非表示にする
 	g->Unregister(totalPointArray[*totalPoint]);
 	g->Unregister(pointArray[*point]);
 	g->Unregister(threwNumberArray[*threwCount]);
 
+	// 得点表示を0に戻す
 	g->Register(pointArray[0]);
 	g->Register(totalPointArray[0]);
 	g->Register(threwNumberArray[0]);
@@ -448,6 +458,7 @@ inline void Dart::react(Texture* _hitArea)
 	int gx,gy;
 	bool overlapping = get_overlapping_center(_hitArea, &gx, &gy,100);
 
+	// 手がダーツに接触したかどうかを判定する
 	if (overlapping) {
 		hitHand = true;
 	}
@@ -501,23 +512,19 @@ inline void Dart::move()
 		vx *= 0.8f;
 		vy *= 0.8f;
 
+		// ダーツボードに当たっているときの処理
 		if (hitDartBoard) {
 
+			// ダーツボードの中心と当たったところの長さを計算する
 			r = sqrt(hitYPoint * hitYPoint + START_Z_POINT *START_Z_POINT);
 			
+			// 円運動させる
 			SetPosition(-6.5f, r * (-sin(angle)), r * cos(angle) + START_Z_POINT);
 
+			// 回転角を増やす
 			angle += 0.05f;
 			
-			// // angleの値を増やす
-			// // 2piより大きくなったら0に戻す
-			// if (angle > 2 * PI) {
-			// 	angle = 0;
-			// } else {
-			// 	angle += 0.05f;
-			// }
-			
-		} else {
+		} else {// ダーツボードに当たっていなかったらそのまま普通に動かす
 			SetPosition(vx, vy, 0.0f, GL_RELATIVE);
 		}
 		
